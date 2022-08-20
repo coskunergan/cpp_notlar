@@ -1,0 +1,11 @@
+/************************************************************************************/
+//20.08.2022
+c++ da bool true ve false standart tanımdır.
+c++ da global cont nesneler static olarak iç bağlantılı çalışır.
+c++ const operatör tanımlı nesneler makro gibi çalışabilir. c de çalışmaz.
+scope leakage dikket edilmeli local değişkenleri blog dışına olabildiğince tanımlamamak lazım.
+const pointer dönüşümleri c++ da kontrollüdür.
+örtülü adres dönüşümleri c++ da yok. maalesef c de var. 
+c++ da typedef olmadan enum union struct kullanılabilir. 
+c++ a özel bir örnek  -> enum Color : unsigned char{mavi,kırmızı,yeşil};      
+/************************************************************************************/
