@@ -26,3 +26,23 @@ PR  U X  -> R value
 L   U X  -> GL value
 c++ için include ederken sonuna .h yazmadan kullanılabilir. başına c koyarak c deki lib leri tanımayabiliyoruz. <string> <cstring> birbirinden farklıdır.
 "Auto x{0} -> int x = 0;" ifadesine ilk değer vermek mecburidir.
+
+
+
+
+***************************
+void foo(void);
+ise
+fp = &foo;
+ise
+
+fp(); olarak çağrılabilir
+(*fp)(); şeklinde de çağrılabilir ama bu daha doğru fptr olduğunu anlamak açısından
+
+****************************
+
+int * p1,p2,p3;
+burada sadece p1 pointer olur.
+a[5] ile [5]a aynı şey mi?.
+ c++ da int *ptr = a; olmaz  *ptr = &a; şeklinde tanımlanır çünkü c deki gibi örtülü tür dönüşümü yapmaz.
+ a[b] ifasesi ile *(a+b) aynı şeydir.
