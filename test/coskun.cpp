@@ -1,5 +1,6 @@
 
 #include <bits/stdc++.h>
+#include <cstring>
 
 // Input: num = 1994
 // Output: "MCMXCIV"
@@ -10,103 +11,71 @@ using namespace std;
 class Solution
 {
 public:
-    string intToRoman(int num)
+    int myAtoi(string s)
     {
-        char str[16];
-        int index = 0;
+        int l = s.length() + 1;
+        char carr[l];
+        int i = 0;
+        unsigned long long num = 0;
+        bool neg = false;
+        bool parse = false;
 
-        while(num)
+        memcpy(carr, s.c_str(), l);
+
+        while(--l)
         {
-            if(num >= 900)
+            if(parse == false)
             {
-                if(num >= 1000)
+                if(carr[i] == '-'  && (carr[i + 1] >= '0' && carr[i + 1] <= '9'))
                 {
-                    num -= 1000;                
+                    neg = true;
+                    parse = true;
                 }
-                else
-                {                
-                    num -= 900;
-                    str[index++] = 'C';                    
+                else if(carr[i] == '+' && (carr[i + 1] >= '0' && carr[i + 1] <= '9'))
+                {
+                    neg = false;
+                    parse = true;
                 }
-                str[index++] = 'M';
+                else if(carr[i] == '.' && (carr[i + 1] >= '0' && carr[i + 1] <= '9'))
+                {
+                    return 0;
+                }
+                else if(carr[i] >= '0' && carr[i] <= '9')
+                {
+                    num = carr[i] - '0';
+                    parse = true;
+                }
+                else if(carr[i] != ' ')
+                {
+                    return 0;
+                }
             }
-            else if(num >= 400)
+            else
             {
-                if(num >= 500)
+                if(carr[i] >= '0' && carr[i] <= '9')
                 {
-                    num -= 500;                
+                    num *= 10;
+                    num += carr[i] - '0';
+                    if(num > 2147483647)
+                    {
+                        if(neg)
+                        {
+                            return 0x80000000;
+                        }
+                        else
+                        {
+                            return 0x7FFFFFFF;
+                        }
+                    }
                 }
                 else
-                {                
-                    num -= 400;
-                    str[index++] = 'C';                    
+                {
+                    break;
                 }
-                str[index++] = 'D';
             }
-            else if(num >= 90)
-            {
-                if(num >= 100)
-                {
-                    num -= 100;                
-                }
-                else
-                {                
-                    num -= 90;
-                    str[index++] = 'X';                    
-                }
-                str[index++] = 'C';
-            }
-            else if(num >= 40)
-            {
-                if(num >= 50)
-                {
-                    num -= 50;                
-                }
-                else
-                {                
-                    num -= 40;
-                    str[index++] = 'X';                    
-                }
-                str[index++] = 'L';
-            }
-            else if(num >= 9)
-            {
-                if(num >= 10)
-                {
-                    num -= 10;                
-                }
-                else
-                {                
-                    num -= 9;
-                    str[index++] = 'I';                    
-                }
-                str[index++] = 'X';
-            }   
-            else if(num >= 4)
-            {
-                if(num >= 5)
-                {
-                    num -= 5;                
-                }
-                else
-                {                
-                    num -= 4;
-                    str[index++] = 'I';                    
-                }
-                str[index++] = 'V';
-            }            
-            else if(num >= 1)
-            {
-                num -= 1;
-                str[index++] = 'I';
-            }
-            if(index > 14)
-            {
-                break;
-            }                    
+            i++;
         }
-        str[index] = '\0';
-        return str;
+        return (int)(neg ? (0x100000000 - num) : num);
     }
 };
 //////////////////////////////
@@ -117,12 +86,7 @@ int main()
 
     cout << "----------begin--------\n\n";
 
-    cout << x.intToRoman(1994) << "\n";
-
-    cout << x.intToRoman(58) << "\n";
-
-    cout << x.intToRoman(3888) << "\n";
-
+    cout << x.myAtoi("0000-123") << "\n";
 
     cout << "\n\n-----------end---------";
 
