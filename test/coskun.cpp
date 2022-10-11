@@ -8,87 +8,113 @@
 
 using namespace std;
 ///////////////////////////////
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+struct ListNode
+{
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
 class Solution
 {
 public:
-    int myAtoi(string s)
+    ListNode *addTwoNumbers(ListNode *l1, ListNode *l2)
     {
-        int l = s.length() + 1;
-        char carr[l];
-        int i = 0;
-        unsigned long long num = 0;
-        bool neg = false;
-        bool parse = false;
+        ListNode *res = new ListNode{};
+        ListNode *head = res;
+        int val, carry = 0;
 
-        memcpy(carr, s.c_str(), l);
-
-        while(--l)
+        while(1)
         {
-            if(parse == false)
+            val = l1->val + l2->val;
+            if(carry)
             {
-                if(carr[i] == '-'  && (carr[i + 1] >= '0' && carr[i + 1] <= '9'))
+                val += 1;
+                carry = 0;
+                if(val > 9)
                 {
-                    neg = true;
-                    parse = true;
+                    val -= 10;
+                    carry = 1;
                 }
-                else if(carr[i] == '+' && (carr[i + 1] >= '0' && carr[i + 1] <= '9'))
-                {
-                    neg = false;
-                    parse = true;
-                }
-                else if(carr[i] == '.' && (carr[i + 1] >= '0' && carr[i + 1] <= '9'))
-                {
-                    return 0;
-                }
-                else if(carr[i] >= '0' && carr[i] <= '9')
-                {
-                    num = carr[i] - '0';
-                    parse = true;
-                }
-                else if(carr[i] != ' ')
-                {
-                    return 0;
-                }
+            }
+            if(val > 9)
+            {
+                val -= 10;
+                carry = 1;
+            }
+            res->val = val;
+
+            if(l1->next == nullptr && l2->next == nullptr && carry == 0)
+            {
+                break;
+            }
+
+            res->next = new ListNode{};
+            res = res->next;
+
+            if(l2->next != nullptr)
+            {
+                l2 = l2->next;
             }
             else
             {
-                if(carr[i] >= '0' && carr[i] <= '9')
-                {
-                    num *= 10;
-                    num += carr[i] - '0';
-                    if(num > 2147483647)
-                    {
-                        if(neg)
-                        {
-                            return 0x80000000;
-                        }
-                        else
-                        {
-                            return 0x7FFFFFFF;
-                        }
-                    }
-                }
-                else
-                {
-                    break;
-                }
+                l2->val = 0;
             }
-            i++;
+            if(l1->next != nullptr)
+            {
+                l1 = l1->next;
+            }
+            else
+            {
+                l1->val = 0;
+            }
         }
-        return (int)(neg ? (0x100000000 - num) : num);
+        return head;
     }
 };
 //////////////////////////////
 
+ListNode *prepare_list(char *arr)
+{
+    int index = strlen(arr);
+    ListNode *l = new ListNode{arr[index - 1] - '0'};
+    ListNode *head = l;
+    while(--index)
+    {
+        l->next = new ListNode{};
+        l = l->next;
+        l->val = arr[index - 1] - '0';
+    }
+    return head;
+}
+
 int main()
 {
     Solution x;
+    ListNode *l1 = prepare_list((char *)"9999999");
+    ListNode *l2 = prepare_list((char *)"9999");
 
     cout << "----------begin--------\n\n";
 
-    cout << x.myAtoi("0000-123") << "\n";
+    ListNode *res = x.addTwoNumbers(l1, l2);
+
+    do
+    {
+        cout << "(" << res->val << ")";
+    }
+    while((res = res->next) != nullptr);
 
     cout << "\n\n-----------end---------";
-
-
 }
