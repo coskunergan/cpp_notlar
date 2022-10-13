@@ -8,22 +8,47 @@ using namespace std;
 class Solution
 {
 public:
-    vector<int> twoSum(vector<int> &nums, int target)
+    int reverse(int x)
     {
-        vector<int> result{};
-        for(int i = 0; i < nums.size(); i++)
+        unsigned int val = abs(x);
+        unsigned long long rev = 0;
+        unsigned int arr[10] =
         {
-            for(int j = i; j < nums.size(); j++)
+            val % 10,
+            (val / 10) % 10,
+            (val / 100) % 10,
+            (val / 1000) % 10,
+            (val / 10000) % 10,
+            (val / 100000) % 10,
+            (val / 1000000) % 10,
+            (val / 10000000) % 10,
+            (val / 100000000) % 10,
+            (val / 1000000000)
+        };
+
+        bool start = false;
+        unsigned int index = 9;
+        unsigned int mult = 1;
+        do
+        {
+            if(arr[index])
             {
-                if((nums[j] + nums[i]) == target)
-                {
-                    result.push_back(i);
-                    result.push_back(j);
-                    return result; 
-                }
+                start = true;
+            }
+            if(start)
+            {
+                rev += ((unsigned long long)arr[index] * mult);
+                mult *= 10;
             }
         }
-        return result;
+        while(index--);
+
+        if(rev > pow(2,31))
+        {
+            rev = 0;
+        }
+
+        return x < 0 ? rev * -1 : rev;
     }
 };
 //////////////////////////////
@@ -32,16 +57,13 @@ public:
 int main()
 {
     Solution x;
-    vector<int> nums = {3, 3};
-    vector<int> res;
+    int number = 1234;
 
     cout << "----------begin--------\n\n";
 
-    res = x.twoSum(nums, 6);
-    for(int i = 0; i < res.size(); i++)
-    {
-        cout << res[i] << ' ';
-    }
+    //cin >> number;
+
+    cout << x.reverse(number) << ' ';
 
     cout << "\n\n-----------end---------";
 }
