@@ -2,119 +2,46 @@
 #include <bits/stdc++.h>
 #include <cstring>
 
-// Input: num = 1994
-// Output: "MCMXCIV"
-// Explanation: M = 1000, CM = 900, XC = 90 and IV = 4
-
 using namespace std;
-///////////////////////////////
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode() : val(0), next(nullptr) {}
- *     ListNode(int x) : val(x), next(nullptr) {}
- *     ListNode(int x, ListNode *next) : val(x), next(next) {}
- * };
- */
-struct ListNode
-{
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
+
 
 class Solution
 {
 public:
-    ListNode *addTwoNumbers(ListNode *l1, ListNode *l2)
+    vector<int> twoSum(vector<int> &nums, int target)
     {
-        ListNode *res = new ListNode{};
-        ListNode *head = res;
-        int val, carry = 0;
-
-        while(1)
+        vector<int> result{};
+        for(int i = 0; i < nums.size(); i++)
         {
-            val = l1->val + l2->val;
-            if(carry)
+            for(int j = i; j < nums.size(); j++)
             {
-                val += 1;
-                carry = 0;
-                if(val > 9)
+                if((nums[j] + nums[i]) == target)
                 {
-                    val -= 10;
-                    carry = 1;
+                    result.push_back(i);
+                    result.push_back(j);
+                    return result; 
                 }
             }
-            if(val > 9)
-            {
-                val -= 10;
-                carry = 1;
-            }
-            res->val = val;
-
-            if(l1->next == nullptr && l2->next == nullptr && carry == 0)
-            {
-                break;
-            }
-
-            res->next = new ListNode{};
-            res = res->next;
-
-            if(l2->next != nullptr)
-            {
-                l2 = l2->next;
-            }
-            else
-            {
-                l2->val = 0;
-            }
-            if(l1->next != nullptr)
-            {
-                l1 = l1->next;
-            }
-            else
-            {
-                l1->val = 0;
-            }
         }
-        return head;
+        return result;
     }
 };
 //////////////////////////////
 
-ListNode *prepare_list(char *arr)
-{
-    int index = strlen(arr);
-    ListNode *l = new ListNode{arr[index - 1] - '0'};
-    ListNode *head = l;
-    while(--index)
-    {
-        l->next = new ListNode{};
-        l = l->next;
-        l->val = arr[index - 1] - '0';
-    }
-    return head;
-}
 
 int main()
 {
     Solution x;
-    ListNode *l1 = prepare_list((char *)"9999999");
-    ListNode *l2 = prepare_list((char *)"9999");
+    vector<int> nums = {3, 3};
+    vector<int> res;
 
     cout << "----------begin--------\n\n";
 
-    ListNode *res = x.addTwoNumbers(l1, l2);
-
-    do
+    res = x.twoSum(nums, 6);
+    for(int i = 0; i < res.size(); i++)
     {
-        cout << "(" << res->val << ")";
+        cout << res[i] << ' ';
     }
-    while((res = res->next) != nullptr);
 
     cout << "\n\n-----------end---------";
 }
