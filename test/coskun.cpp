@@ -8,47 +8,49 @@ using namespace std;
 class Solution
 {
 public:
-    int reverse(int x)
+    bool isPalindrome(int x)
     {
-        unsigned int val = abs(x);
-        unsigned long long rev = 0;
-        unsigned int arr[10] =
+        char arr[10];
+        if(x < 0)
         {
-            val % 10,
-            (val / 10) % 10,
-            (val / 100) % 10,
-            (val / 1000) % 10,
-            (val / 10000) % 10,
-            (val / 100000) % 10,
-            (val / 1000000) % 10,
-            (val / 10000000) % 10,
-            (val / 100000000) % 10,
-            (val / 1000000000)
-        };
-
-        bool start = false;
-        unsigned int index = 9;
-        unsigned int mult = 1;
-        do
-        {
-            if(arr[index])
-            {
-                start = true;
-            }
-            if(start)
-            {
-                rev += ((unsigned long long)arr[index] * mult);
-                mult *= 10;
-            }
-        }
-        while(index--);
-
-        if(rev > pow(2,31))
-        {
-            rev = 0;
+            return false;
         }
 
-        return x < 0 ? rev * -1 : rev;
+        if(x == 0)
+        {
+            return true;
+        }        
+
+        arr[0]  = x % 10;
+        arr[1]  = x / 10 % 10;
+        arr[2]  = x / 100 % 10;
+        arr[3]  = x / 1000 % 10;
+        arr[4]  = x / 10000 % 10;
+        arr[5]  = x / 100000 % 10;
+        arr[6]  = x / 1000000 % 10;
+        arr[7]  = x / 10000000 % 10;
+        arr[8]  = x / 100000000 % 10;
+        arr[9]  = x / 1000000000 % 10;
+
+        int len;
+        int i ;
+
+        for(i = 9; i > 0; i--)
+        {
+            if(arr[i])
+            {
+                len = i;
+                break;
+            }
+        }             
+        for(i = 0; i < len; i++)
+        {
+            if(arr[i] != arr[len - i])
+            {
+                return false;
+            }
+        }
+        return true;
     }
 };
 //////////////////////////////
@@ -57,13 +59,12 @@ public:
 int main()
 {
     Solution x;
-    int number = 1234;
 
     cout << "----------begin--------\n\n";
 
-    //cin >> number;
-
-    cout << x.reverse(number) << ' ';
+    {
+        cout << x.isPalindrome(12321) << ' ';
+    }
 
     cout << "\n\n-----------end---------";
 }
