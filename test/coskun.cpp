@@ -8,49 +8,72 @@ using namespace std;
 class Solution
 {
 public:
-    bool isPalindrome(int x)
+    int divide(int dividend, int divisor)
     {
-        char arr[10];
-        if(x < 0)
+        unsigned int res = 0;
+        unsigned long long dv = (unsigned int)abs(dividend);
+        unsigned long long dr = (unsigned int)abs(divisor);
+        unsigned int shift = 0;
+        if(dv < dr)
         {
-            return false;
+            return 0;
         }
-
-        if(x == 0)
+        if(divisor == 1)
         {
-            return true;
-        }        
-
-        arr[0]  = x % 10;
-        arr[1]  = x / 10 % 10;
-        arr[2]  = x / 100 % 10;
-        arr[3]  = x / 1000 % 10;
-        arr[4]  = x / 10000 % 10;
-        arr[5]  = x / 100000 % 10;
-        arr[6]  = x / 1000000 % 10;
-        arr[7]  = x / 10000000 % 10;
-        arr[8]  = x / 100000000 % 10;
-        arr[9]  = x / 1000000000 % 10;
-
-        int len;
-        int i ;
-
-        for(i = 9; i > 0; i--)
+            return dividend;
+        }
+        if(divisor == dividend)
         {
-            if(arr[i])
+            return 1;
+        }
+        if(divisor < 0 && dividend < 0)
+        {
+            if(divisor == -1)
             {
-                len = i;
+                return abs(dividend) - 1;
+            }
+        }
+        for(int i = 32; i > 2; i--)
+        {
+            if(dv >= (dr << i))
+            {
+                shift = i;
                 break;
             }
-        }             
-        for(i = 0; i < len; i++)
+        }
+        if(shift)
         {
-            if(arr[i] != arr[len - i])
+            dr <<= shift;
+            while(dv >= dr)
             {
-                return false;
+                dv -= dr;
+                res += 1;
+            }
+            res <<= shift;
+            dr >>= shift;
+            while(dv >= dr)
+            {
+                dv -= dr;
+                res += 1;
             }
         }
-        return true;
+        else
+        {
+            while(dv >= dr)
+            {
+                dv -= dr;
+                res += 1;
+            }
+        }
+        if(dividend < 0 && divisor >= 0)
+        {
+            res = (0xFFFFFFFF - res) + 1;
+        }
+        else if(divisor < 0 && dividend >= 0)
+        {
+            res = (0xFFFFFFFF - res) + 1;
+        }
+        return (int)res;
     }
 };
 //////////////////////////////
@@ -63,7 +86,13 @@ int main()
     cout << "----------begin--------\n\n";
 
     {
-        cout << x.isPalindrome(12321) << ' ';
+        cout << x.divide(-1021989372, -82778243) << '\n';
+        cout << x.divide(2147483647, 1) << '\n';
+        cout << x.divide(1026117192, -874002063) << '\n';
+        cout << x.divide(0, 1) << '\n';
+        cout << x.divide(-2147483648, -1) << '\n';
+        cout << x.divide(7, -3) << '\n';
+        cout << x.divide(-2147483648, -3) << '\n';
     }
 
     cout << "\n\n-----------end---------";
