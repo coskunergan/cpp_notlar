@@ -8,72 +8,140 @@ using namespace std;
 class Solution
 {
 public:
-    int divide(int dividend, int divisor)
+    string find_left(string s, int center)
     {
-        unsigned int res = 0;
-        unsigned long long dv = (unsigned int)abs(dividend);
-        unsigned long long dr = (unsigned int)abs(divisor);
-        unsigned int shift = 0;
-        if(dv < dr)
+        string res{};
+        int len = s.length();
+        int right = center + 1;
+        int left = 0;
+        bool lock = false;
+        if(center)
         {
-            return 0;
+            left = center - 1;
         }
-        if(divisor == 1)
+        res.push_back(s[center]);
+        while(right < len)
         {
-            return dividend;
-        }
-        if(divisor == dividend)
-        {
-            return 1;
-        }
-        if(divisor < 0 && dividend < 0)
-        {
-            if(divisor == -1)
+            if(!lock && s[center] == s[right])
             {
-                return abs(dividend) - 1;
+                res.push_back(s[right]);
+                if(s[center] == s[left])
+                {
+                    res.insert(0, 1, s[left]);
+                    left--;
+                }
+                else
+                {
+                    lock = true;
+                }
             }
-        }
-        for(int i = 32; i > 2; i--)
-        {
-            if(dv >= (dr << i))
+            else if(s[right] == s[left])
             {
-                shift = i;
-                break;
+                res.insert(0, 1, s[left]);
+                lock = true;
+                left--;
+                res.push_back(s[right]);
             }
-        }
-        if(shift)
-        {
-            dr <<= shift;
-            while(dv >= dr)
+            else
             {
-                dv -= dr;
-                res += 1;
+                if(lock)
+                {
+                    left--;
+                }
             }
-            res <<= shift;
-            dr >>= shift;
-            while(dv >= dr)
+            right++;
+        }
+        return res;
+    }
+
+    string find_right(string s, int center)
+    {
+        string res{};
+        int len = s.length();
+        int right = center + 1;
+        int left = 0;
+        bool lock = false;
+        if(center)
+        {
+            left = center - 1;
+        }
+        res.push_back(s[center]);
+        while(left >= 0)
+        {
+            if(!lock && s[center] == s[left])
             {
-                dv -= dr;
-                res += 1;
+                res.insert(0, 1, s[left]);
+                if(s[center] == s[right])
+                {
+                    res.push_back(s[right]);
+                    right++;
+                }
+                else
+                {
+                    lock = true;
+                }
             }
-        }
-        else
-        {
-            while(dv >= dr)
+            else if(s[left] == s[right])
             {
-                dv -= dr;
-                res += 1;
+                lock = true;
+                res.push_back(s[right]);
+                right++;
+                res.insert(0, 1, s[left]);
+
             }
+            else
+            {
+                if(lock)
+                {
+                    right++;
+                }
+            }
+            left--;
         }
-        if(dividend < 0 && divisor >= 0)
+        return res;
+    }
+
+    string longestPalindrome(string s)
+    {
+        string ans{};
+        string res{};
+        int len = s.length();
+        int center = len / 2;
+
+        if(len <= 1)
         {
-            res = (0xFFFFFFFF - res) + 1;
+            return s;
         }
-        else if(divisor < 0 && dividend >= 0)
+        if(len == 2)
         {
-            res = (0xFFFFFFFF - res) + 1;
+            if(s[0] != s[1])
+            {
+                return {s[0]};
+            }
+            return s;
         }
-        return (int)res;
+
+        while(center)
+        {
+            res = find_right(s, center);
+            if(res.length() > ans.length())
+            {
+                ans = res;
+            }
+            center--;
+        }
+
+        center = (len / 2);
+        while(center < len)
+        {
+            res = find_left(s, center);
+            if(res.length() > ans.length())
+            {
+                ans = res;
+            }
+            center++;
+        }
+        return ans;
     }
 };
 //////////////////////////////
@@ -83,16 +151,43 @@ int main()
 {
     Solution x;
 
+    string test_str[][2] =
+    {
+        {"aacabdkacaa", "aca"},
+        {"babad", "aba"},
+        {"abcda", "a"},
+        {"abb", "bb"},
+        {"aab", "aa"},
+        {"cbbd", "bb"},
+        {"ac", "a"},
+        {"bb", "bb"},
+        {"a", "a"},
+        {"ccc", "ccc"},
+        {"cccc", "cccc"},
+        {"ccccc", "ccccc"},
+        {"123ccc", "ccc"},
+        {"ccc123", "ccc"},
+        {"0ccc123", "ccc"},
+        {"123ccc4", "ccc"},
+        {"123cc4", "cc"},
+        {"xaabacxcabaaxcabaax", "xaabacxcabaax"}
+    };
+
     cout << "----------begin--------\n\n";
 
     {
-        cout << x.divide(-1021989372, -82778243) << '\n';
-        cout << x.divide(2147483647, 1) << '\n';
-        cout << x.divide(1026117192, -874002063) << '\n';
-        cout << x.divide(0, 1) << '\n';
-        cout << x.divide(-2147483648, -1) << '\n';
-        cout << x.divide(7, -3) << '\n';
-        cout << x.divide(-2147483648, -3) << '\n';
+        for(int i = 0; i < 18; i++)
+        {
+            string ans = x.longestPalindrome(test_str[i][0]);
+            if(ans == test_str[i][1])
+            {
+                cout << "OK    : " << test_str[i][0] << " -> " << test_str[i][1] << '\n';
+            }
+            else
+            {
+                cout << "FAIL  : " << test_str[i][0] << " -> " << test_str[i][1] << " Ans: " << ans << '\n';
+            }
+        }
     }
 
     cout << "\n\n-----------end---------";
