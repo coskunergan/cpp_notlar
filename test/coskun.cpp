@@ -37,6 +37,7 @@ public:
             }
             else if(s[right] == s[left])
             {
+
                 res.insert(0, 1, s[left]);
                 lock = true;
                 left--;
@@ -50,6 +51,29 @@ public:
                 }
             }
             right++;
+        }
+        return res;
+    }
+
+    string find_center(string s, int center)
+    {
+        string res{};
+        int len = s.length();
+        int right = center + 1;
+        int left = 0;
+        bool lock = false;
+        if(center)
+        {
+            left = center - 1;
+        }
+        while(left >= 0)
+        {
+            if(s[left] == s[right])
+            {
+                res.push_back(s[right]);
+            }
+            right++;
+            left--;
         }
         return res;
     }
@@ -84,10 +108,12 @@ public:
             else if(s[left] == s[right])
             {
                 lock = true;
-                res.push_back(s[right]);
+                if(lock)
+                {
+                    res.push_back(s[right]);
+                }
                 right++;
                 res.insert(0, 1, s[left]);
-
             }
             else
             {
@@ -105,42 +131,66 @@ public:
     {
         string ans{};
         string res{};
-        int len = s.length();
-        int center = len / 2;
 
-        if(len <= 1)
-        {
-            return s;
-        }
-        if(len == 2)
+        if( s.length() == 2)
         {
             if(s[0] != s[1])
             {
-                return {s[0]};
+                return {s[0]}; // ??
             }
-            return s;
         }
 
+        int center = s.length() / 2;
         while(center)
         {
             res = find_right(s, center);
-            if(res.length() > ans.length())
+            if(res.length() >= ans.length())
             {
                 ans = res;
             }
             center--;
         }
 
-        center = (len / 2);
-        while(center < len)
+        center = s.length() / 2;
+        while(center <  s.length())
         {
             res = find_left(s, center);
-            if(res.length() > ans.length())
+            if(res.length() >= ans.length())
             {
                 ans = res;
             }
             center++;
         }
+
+        res = find_center(s, (s.length() / 2));
+        if(res.length() > ans.length())
+        {
+            s = res;
+            center = s.length()/2;
+            while(center)
+            {
+                res = find_right(s, center);
+                if(res.length() >= ans.length())
+                {
+                    ans = res;
+                }
+                center--;
+            }
+
+            center = s.length()/2;
+            while(center < s.length())
+            {
+                res = find_left(s, center);
+                if(res.length() >= ans.length())
+                {
+                    ans = res;
+                }
+                center++;
+            }
+
+            ans = res;
+        }
+
         return ans;
     }
 };
@@ -153,9 +203,11 @@ int main()
 
     string test_str[][2] =
     {
-        {"aacabdkacaa", "aca"},
-        {"babad", "aba"},
         {"abcda", "a"},
+        {"1abcda0", "a"},
+        {"xaabacxcabaaxcabaax", "xaabacxcabaax"},
+        {"babad", "aba"},
+        {"aacabdkacaa", "aca"},
         {"abb", "bb"},
         {"aab", "aa"},
         {"cbbd", "bb"},
@@ -170,13 +222,12 @@ int main()
         {"0ccc123", "ccc"},
         {"123ccc4", "ccc"},
         {"123cc4", "cc"},
-        {"xaabacxcabaaxcabaax", "xaabacxcabaax"}
     };
 
     cout << "----------begin--------\n\n";
 
     {
-        for(int i = 0; i < 18; i++)
+        for(int i = 0; i < 19; i++)
         {
             string ans = x.longestPalindrome(test_str[i][0]);
             if(ans == test_str[i][1])
