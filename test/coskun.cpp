@@ -45,10 +45,12 @@ public:
             }
             else
             {
-                if(lock)
+                if(res.length() == 1)
                 {
-                    left--;
+                    res.clear();
+                    lock = false;
                 }
+                break;
             }
             right++;
         }
@@ -117,10 +119,12 @@ public:
             }
             else
             {
-                if(lock)
+                if(res.length() == 1)
                 {
-                    right++;
+                    res.clear();
+                    lock = false;
                 }
+                break;
             }
             left--;
         }
@@ -131,8 +135,13 @@ public:
     {
         string ans{};
         string res{};
+        string temp{};
 
-        if( s.length() == 2)
+        if(s.length() == 1)
+        {
+            return s;
+        }
+        if(s.length() == 2)
         {
             if(s[0] != s[1])
             {
@@ -150,9 +159,9 @@ public:
             }
             center--;
         }
-
+        temp = ans;
         center = s.length() / 2;
-        while(center <  s.length())
+        while(center < s.length() - 1)
         {
             res = find_left(s, center);
             if(res.length() >= ans.length())
@@ -161,36 +170,37 @@ public:
             }
             center++;
         }
-
-        res = find_center(s, (s.length() / 2));
-        if(res.length() > ans.length())
+        if(temp == "" && ans == "")
         {
-            s = res;
-            center = s.length()/2;
-            while(center)
+            res = find_center(s, (s.length() / 2));
+            if(res.length() >= ans.length())
             {
-                res = find_right(s, center);
-                if(res.length() >= ans.length())
+                s = res;
+                center = s.length() / 2;
+                while(center)
                 {
-                    ans = res;
+                    res = find_right(s, center);
+                    if(res.length() >= ans.length())
+                    {
+                        ans = res;
+                    }
+                    center--;
                 }
-                center--;
-            }
 
-            center = s.length()/2;
-            while(center < s.length())
-            {
-                res = find_left(s, center);
-                if(res.length() >= ans.length())
+                center = s.length() / 2;
+                while(center < s.length())
                 {
-                    ans = res;
+                    res = find_left(s, center);
+                    if(res.length() >= ans.length())
+                    {
+                        ans = res;
+                    }
+                    center++;
                 }
-                center++;
-            }
 
-            ans = res;
+                ans = res;
+            }
         }
-
         return ans;
     }
 };
@@ -203,9 +213,12 @@ int main()
 
     string test_str[][2] =
     {
+        {"jglknendplocymmvwtoxvebkekzfdhykknufqdkntnqvgfbahsljkobhbxkvyictzkqjqydczuxjkgecdyhixdttxfqmgksrkyvopwprsgoszftuhawflzjyuyrujrxluhzjvbflxgcovilthvuihzttzithnsqbdxtafxrfrblulsakrahulwthhbjcslceewxfxtavljpimaqqlcbrdgtgjryjytgxljxtravwdlnrrauxplempnbfeusgtqzjtzshwieutxdytlrrqvyemlyzolhbkzhyfyttevqnfvmpqjngcnazmaagwihxrhmcibyfkccyrqwnzlzqeuenhwlzhbxqxerfifzncimwqsfatudjihtumrtjtggzleovihifxufvwqeimbxvzlxwcsknksogsbwwdlwulnetdysvsfkonggeedtshxqkgbhoscjgpiel", "sknks"},
+        {"abcdasdfghjkldcba", "a"},
         {"abcda", "a"},
-        {"1abcda0", "a"},
+        {"abcdbbfcba", "bb"},
         {"xaabacxcabaaxcabaax", "xaabacxcabaax"},
+        {"1abcda0", "a"},
         {"babad", "aba"},
         {"aacabdkacaa", "aca"},
         {"abb", "bb"},
@@ -227,7 +240,7 @@ int main()
     cout << "----------begin--------\n\n";
 
     {
-        for(int i = 0; i < 19; i++)
+        for(int i = 0; i < 22; i++)
         {
             string ans = x.longestPalindrome(test_str[i][0]);
             if(ans == test_str[i][1])
