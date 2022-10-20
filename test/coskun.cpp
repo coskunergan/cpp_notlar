@@ -8,200 +8,35 @@ using namespace std;
 class Solution
 {
 public:
-    string find_left(string s, int center)
+    double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2)
     {
-        string res{};
-        int len = s.length();
-        int right = center + 1;
-        int left = 0;
-        bool lock = false;
-        if(center)
+        int len = nums1.size();
+        int i;        
+        
+        while(nums2.size())
         {
-            left = center - 1;
-        }
-        res.push_back(s[center]);
-        while(right < len)
-        {
-            if(!lock && s[center] == s[right])
-            {
-                res.push_back(s[right]);
-                if(s[center] == s[left])
-                {
-                    res.insert(0, 1, s[left]);
-                    left--;
-                }
-                else
-                {
-                    lock = true;
-                }
-            }
-            else if(s[right] == s[left])
-            {
+            int val = nums2.back();
+            nums2.pop_back();
 
-                res.insert(0, 1, s[left]);
-                lock = true;
-                left--;
-                res.push_back(s[right]);
-            }
-            else
+            for(i = len - 1; i >= 0; i--)
             {
-                if(res.length() == 1)
+                if(nums1[i] <= val)
                 {
-                    res.clear();
-                    lock = false;
-                }
-                break;
-            }
-            right++;
-        }
-        return res;
-    }
-
-    string find_center(string s, int center)
-    {
-        string res{};
-        int len = s.length();
-        int right = center + 1;
-        int left = 0;
-        bool lock = false;
-        if(center)
-        {
-            left = center - 1;
-        }
-        while(left >= 0)
-        {
-            if(s[left] == s[right])
-            {
-                res.push_back(s[right]);
-            }
-            right++;
-            left--;
-        }
-        return res;
-    }
-
-    string find_right(string s, int center)
-    {
-        string res{};
-        int len = s.length();
-        int right = center + 1;
-        int left = 0;
-        bool lock = false;
-        if(center)
-        {
-            left = center - 1;
-        }
-        res.push_back(s[center]);
-        while(left >= 0)
-        {
-            if(!lock && s[center] == s[left])
-            {
-                res.insert(0, 1, s[left]);
-                if(s[center] == s[right])
-                {
-                    res.push_back(s[right]);
-                    right++;
-                }
-                else
-                {
-                    lock = true;
+                    nums1.insert(nums1.begin() + i + 1, val);
+                    break;
                 }
             }
-            else if(s[left] == s[right])
+            if(i < 0)
             {
-                lock = true;
-                if(lock)
-                {
-                    res.push_back(s[right]);
-                }
-                right++;
-                res.insert(0, 1, s[left]);
+                nums1.insert(nums1.begin(), val);
             }
-            else
-            {
-                if(res.length() == 1)
-                {
-                    res.clear();
-                    lock = false;
-                }
-                break;
-            }
-            left--;
         }
-        return res;
-    }
-
-    string longestPalindrome(string s)
-    {
-        string ans{};
-        string res{};
-        string temp{};
-
-        if(s.length() == 1)
+        len = nums1.size();
+        if(len % 2 == 0)
         {
-            return s;
+            return (double)(nums1[(len - 1) / 2] + nums1[((len - 1) / 2) + 1]) / 2;
         }
-        if(s.length() == 2)
-        {
-            if(s[0] != s[1])
-            {
-                return {s[0]}; // ??
-            }
-        }
-
-        int center = s.length() / 2;
-        while(center)
-        {
-            res = find_right(s, center);
-            if(res.length() >= ans.length())
-            {
-                ans = res;
-            }
-            center--;
-        }
-        temp = ans;
-        center = s.length() / 2;
-        while(center < s.length() - 1)
-        {
-            res = find_left(s, center);
-            if(res.length() >= ans.length())
-            {
-                ans = res;
-            }
-            center++;
-        }
-        if(temp == "" && ans == "")
-        {
-            res = find_center(s, (s.length() / 2));
-            if(res.length() >= ans.length())
-            {
-                s = res;
-                center = s.length() / 2;
-                while(center)
-                {
-                    res = find_right(s, center);
-                    if(res.length() >= ans.length())
-                    {
-                        ans = res;
-                    }
-                    center--;
-                }
-
-                center = s.length() / 2;
-                while(center < s.length())
-                {
-                    res = find_left(s, center);
-                    if(res.length() >= ans.length())
-                    {
-                        ans = res;
-                    }
-                    center++;
-                }
-
-                ans = res;
-            }
-        }
-        return ans;
+        return nums1[(len - 1) / 2];
     }
 };
 //////////////////////////////
@@ -211,47 +46,14 @@ int main()
 {
     Solution x;
 
-    string test_str[][2] =
-    {
-        {"jglknendplocymmvwtoxvebkekzfdhykknufqdkntnqvgfbahsljkobhbxkvyictzkqjqydczuxjkgecdyhixdttxfqmgksrkyvopwprsgoszftuhawflzjyuyrujrxluhzjvbflxgcovilthvuihzttzithnsqbdxtafxrfrblulsakrahulwthhbjcslceewxfxtavljpimaqqlcbrdgtgjryjytgxljxtravwdlnrrauxplempnbfeusgtqzjtzshwieutxdytlrrqvyemlyzolhbkzhyfyttevqnfvmpqjngcnazmaagwihxrhmcibyfkccyrqwnzlzqeuenhwlzhbxqxerfifzncimwqsfatudjihtumrtjtggzleovihifxufvwqeimbxvzlxwcsknksogsbwwdlwulnetdysvsfkonggeedtshxqkgbhoscjgpiel", "sknks"},
-        {"abcdasdfghjkldcba", "a"},
-        {"abcda", "a"},
-        {"abcdbbfcba", "bb"},
-        {"xaabacxcabaaxcabaax", "xaabacxcabaax"},
-        {"1abcda0", "a"},
-        {"babad", "aba"},
-        {"aacabdkacaa", "aca"},
-        {"abb", "bb"},
-        {"aab", "aa"},
-        {"cbbd", "bb"},
-        {"ac", "a"},
-        {"bb", "bb"},
-        {"a", "a"},
-        {"ccc", "ccc"},
-        {"cccc", "cccc"},
-        {"ccccc", "ccccc"},
-        {"123ccc", "ccc"},
-        {"ccc123", "ccc"},
-        {"0ccc123", "ccc"},
-        {"123ccc4", "ccc"},
-        {"123cc4", "cc"},
-    };
+    vector<int>nums1 = {0, 0, 0, 0, 0};
+    vector<int>nums2 = {-1, 0, 0, 0, 0, 0, 1};
 
     cout << "----------begin--------\n\n";
 
     {
-        for(int i = 0; i < 22; i++)
-        {
-            string ans = x.longestPalindrome(test_str[i][0]);
-            if(ans == test_str[i][1])
-            {
-                cout << "OK    : " << test_str[i][0] << " -> " << test_str[i][1] << '\n';
-            }
-            else
-            {
-                cout << "FAIL  : " << test_str[i][0] << " -> " << test_str[i][1] << " Ans: " << ans << '\n';
-            }
-        }
+        double ans = x.findMedianSortedArrays(nums1, nums2);
+        cout << " Ans: " << ans << '\n';
     }
 
     cout << "\n\n-----------end---------";
