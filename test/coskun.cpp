@@ -2,6 +2,7 @@
 #include <bits/stdc++.h>
 #include <vector>
 #include <cstring>
+#include <algorithm>
 
 using namespace std;
 
@@ -10,53 +11,158 @@ using namespace std;
 //////////////////////////////
 class Solution
 {
-public:
-    void solveSudoku(vector<vector<char>> &board)
+private:
+    string possible[81]
     {
-        int s_row, row;
-        int s_colum, colum;
-        const vector<char> availible_nums{ '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-        vector<char> possible_nums;
-
-        for(s_row = 0; s_row < 9; ++s_row)
+        "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
+        "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
+        "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
+        "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
+        "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
+        "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
+        "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
+        "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
+        "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
+    };
+    /*****************************************/
+    void direct_extract_number(size_t colum, size_t row, char c)
+    {
+        size_t cube_row;
+        size_t cube_colum;
+        size_t index = (colum * 9) + row;
+        size_t i;
+        possible[index].erase();
+        for(i = 0; i < 9; i++)
         {
-            for(s_colum = 0; s_colum < 9; ++s_colum)
+            index = (colum * 9) + i;
+            possible[index].erase(remove(possible[index].begin(), possible[index].end(), c), possible[index].end());
+            index = (i * 9) + row;
+            possible[index].erase(remove(possible[index].begin(), possible[index].end(), c), possible[index].end());
+            cube_row = ((row / 3) * 3) + (i % 3);
+            cube_colum = ((colum / 3) * 3) + (i / 3);
+            index = (cube_colum * 9) + cube_row;
+            possible[index].erase(remove(possible[index].begin(), possible[index].end(), c), possible[index].end());
+        }
+    }
+    /*****************************************/
+    void releated_extract_number(void)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t index;
+        size_t subindex;
+        size_t i;
+
+        for(colum = 0; colum < 9; colum++)
+        {
+            for(row = 0; row < 9; row++)
             {
-                int x = board[s_row][s_colum];
-                if(x == '.')
+                index = (colum * 9) + row;
+                for(char c : possible[index])
                 {
-                    possible_nums = availible_nums;
-                    int left_row = 9;
-                    int left_colum = 9;
-                    for(int i = 0; i < 9; ++i)
+                    if(c)
                     {
-                        if(board[s_row][i] != '.')
+                        for(i = 0; i < 9; i++)
                         {
-                            possible_nums[board[s_row][i] - 1] = 'x';
-                            left_row--;
+                            subindex = (colum * 9) + i;
+                            if(index != subindex)
+                            {
+                                if(possible[subindex].find(c) != string::npos)
+                                {
+                                    break;
+                                }
+                            }
                         }
-                        if(board[i][s_colum] != '.')
+                        if(i == 9)
                         {
-                            possible_nums[board[i][s_colum] - 1] = 'x';
-                            left_colum--;
+                            possible[index].erase();
+                            possible[index].push_back(c);
+                        }
+                        for(i = 0; i < 9; i++)
+                        {
+                            subindex = (i * 9) + row;
+                            if(index != subindex)
+                            {
+                                if(possible[subindex].find(c) != string::npos)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        if(i == 9)
+                        {
+                            possible[index].erase();
+                            possible[index].push_back(c);
+                        }
+                        for(i = 0; i < 9; i++)
+                        {
+                            cube_row = ((row / 3) * 3) + (i % 3);
+                            cube_colum = ((colum / 3) * 3) + (i / 3);
+                            subindex = (cube_colum * 9) + cube_row;
+                            if(index != subindex)
+                            {
+                                if(possible[subindex].find(c) != string::npos)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        if(i == 9)
+                        {
+                            possible[index].erase();
+                            possible[index].push_back(c);
                         }
                     }
-                    if(left_row == 1)
-                    {
-
-                    }
-                    if(left_colum == 1)
-                    {
-
-                    }
-
-
                 }
             }
         }
-
-
-
+    }
+    /*****************************************/
+    bool find_number(vector<vector<char>> &board)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t match;
+        char c, res;
+        bool solve = false;
+        for(colum = 0; colum < 9; colum++)
+        {
+            for(row = 0; row < 9; row++)
+            {
+                if(possible[(colum * 9) + row].size() == 1)
+                {
+                    c = possible[(colum * 9) + row][0];
+                    direct_extract_number(colum, row, c);
+                    board[colum][row] = c;
+                    solve = true;
+                }
+            }
+        }
+        return solve;
+    }
+    /*****************************************/
+public:
+    void solveSudoku(vector<vector<char>> &board)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t match;
+        char c, res;
+        for(colum = 0; colum < 9; colum++)
+        {
+            for(row = 0; row < 9; row++)
+            {
+                c = board[colum][row];
+                if(c != '.')
+                {
+                    direct_extract_number(colum, row, c);
+                }
+            }
+        }
+        while(find_number(board))
+        {
+            releated_extract_number();
+        }
     }
 };
 //////////////////////////////
@@ -66,41 +172,17 @@ int main()
 {
     Solution x;
 
-    vector<vector<char>> board
-    {
-        {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
-        {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
-        {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
-        {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
-        {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
-        {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
-        {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
-        {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
-        {'.', '.', '.', '.', '8', '.', '.', '7', '9'}
-    };
+    vector<vector<char>> board{{'.', '.', '9', '7', '4', '8', '.', '.', '.'}, {'7', '.', '.', '.', '.', '.', '.', '.', '.'}, {'.', '2', '.', '1', '.', '9', '.', '.', '.'}, {'.', '.', '7', '.', '.', '.', '2', '4', '.'}, {'.', '6', '4', '.', '1', '.', '5', '9', '.'}, {'.', '9', '8', '.', '.', '.', '3', '.', '.'}, {'.', '.', '.', '8', '.', '3', '.', '2', '.'}, {'.', '.', '.', '.', '.', '.', '.', '.', '6'}, {'.', '.', '.', '2', '7', '5', '9', '.', '.'}};
+    vector<vector<char>> solve{{'5', '1', '9', '7', '4', '8', '6', '3', '2'}, {'7', '8', '3', '6', '5', '2', '4', '1', '9'}, {'4', '2', '6', '1', '3', '9', '8', '7', '5'}, {'3', '5', '7', '9', '8', '6', '2', '4', '1'}, {'2', '6', '4', '3', '1', '7', '5', '9', '8'}, {'1', '9', '8', '5', '2', '4', '3', '6', '7'}, {'9', '7', '5', '8', '6', '3', '1', '2', '4'}, {'8', '3', '2', '4', '9', '1', '7', '5', '6'}, {'6', '4', '1', '2', '7', '5', '9', '8', '3'}};
 
-    vector<vector<char>> solved
-    {
-        {'5', '3', '4', '6', '7', '8', '9', '1', '2'},
-        {'6', '7', '2', '1', '9', '5', '3', '4', '8'},
-        {'1', '9', '8', '3', '4', '2', '5', '6', '7'},
-        {'8', '5', '9', '7', '6', '1', '4', '2', '3'},
-        {'4', '2', '6', '8', '5', '3', '7', '9', '1'},
-        {'7', '1', '3', '9', '2', '4', '8', '5', '6'},
-        {'9', '6', '1', '5', '3', '7', '2', '8', '4'},
-        {'2', '8', '7', '4', '1', '9', '6', '3', '5'},
-        {'3', '4', '5', '2', '8', '6', '1', '7', '9'}
-    };
-
-    cout << "----------begin--------\n\n";
-
+    cout << "----------begin--------\n";
     x.solveSudoku(board);
-
+    int left = 0;
     for(int i = 0; i < board.size(); ++i)
     {
         for(int j = 0; j < board[i].size(); ++j)
         {
-            if(board[i][j] != '.' && solved[i][j] != board[i][j])
+            if(board[i][j] != '.' && solve[i][j] != board[i][j])
             {
                 cout << "[x" << board[i][j] << ']';
             }
@@ -108,9 +190,14 @@ int main()
             {
                 cout << '[' << board[i][j] << ']';
             }
+            if(board[i][j] == '.')
+            {
+                left++;
+            }
         }
         cout << '\n';
     }
+    cout << "Left:" << left << '\n';
 
     cout << "-----------end---------";
 }
