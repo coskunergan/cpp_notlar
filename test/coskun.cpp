@@ -118,6 +118,229 @@ private:
         }
     }
     /*****************************************/
+    void find_obvious_triples(void)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t index;
+        size_t triples_index[3];
+        char tripA, tripB, tripC;
+        for(size_t i = 0; i < 9; i++)
+        {
+            colum = (i / 3) * 3;
+            row = (i * 3) % 9;
+            tripA = 0;
+            tripB = 0;
+            tripC = 0;
+            for(size_t i = 0; i < 9; i++)
+            {
+                cube_row = ((row / 3) * 3) + (i % 3);
+                cube_colum = ((colum / 3) * 3) + (i / 3);
+                index = (cube_colum * 9) + cube_row;
+                if(tripA == 0)
+                {
+                    if(possible[index].size() == 2)
+                    {
+                        tripA = possible[index][0]; // 1 -> 1
+                        tripB = possible[index][1]; // 8 -> 8
+                        triples_index[0] = index;
+                    }
+                }
+                else if(tripC == 0)
+                {
+                    if(possible[index].size() == 2)
+                    {
+                        size_t p = possible[index].find(tripA);
+                        if(p != string::npos)
+                        {
+                            p++;
+                            tripC = possible[index][p % 2];
+                        }
+                        else
+                        {
+                            p = possible[index].find(tripB);
+                            if(p != string::npos)
+                            {
+                                p++;
+                                tripC = tripB;
+                                tripB = tripA;
+                                tripA = tripC;
+                                tripC = possible[index][p % 2];
+                                triples_index[1] = index;
+                            }
+                            else
+                            {
+                                tripA = possible[index][0];
+                                tripB = possible[index][1];
+                                triples_index[0] = index;
+                            }
+                        }
+                    }
+                }
+                else if(possible[index].size() == 2)
+                {
+                    size_t p = possible[index].find(tripC);
+                    if(p != string::npos)
+                    {
+                        p++;
+                        if(possible[index][p % 2] == tripB)
+                        {
+                            triples_index[2] = index;
+                            // finded triples.
+                            for(size_t i = 0; i < 9; i++)
+                            {
+                                cube_row = ((row / 3) * 3) + (i % 3);
+                                cube_colum = ((colum / 3) * 3) + (i / 3);
+                                index = (cube_colum * 9) + cube_row;
+                                if(index != triples_index[0] && index != triples_index[1] && index != triples_index[2])
+                                {
+                                    possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripA), possible[index].end());
+                                    possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripB), possible[index].end());
+                                    possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripC), possible[index].end());
+                                }
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /*****************************************/
+    void find_hidded_pairs(void)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t index;
+        size_t indexA;
+        size_t indexB;
+        vector<char> pairs;
+        vector<size_t> count;
+        size_t testB;
+        char pair;
+        for(size_t i = 0; i < 9; i++)
+        {
+            colum = (i / 3) * 3;
+            row = (i * 3) % 9;
+            for(size_t i = 0; i < 9; i++)// count use numb.
+            {
+                cube_row = ((row / 3) * 3) + (i % 3);
+                cube_colum = ((colum / 3) * 3) + (i / 3);
+                index = (cube_colum * 9) + cube_row;
+                for(char c : possible[index])
+                {
+                    count[c - '1']++;
+                }
+            }
+            for(size_t i = 0; i < count.size(); i++) // find pairs.
+            {
+                if(count[i] == 2)
+                {
+                    pairs.push_back(i + '1');
+                }
+            }
+            indexA = indexB = string::npos;
+            if(pairs.size() >= 2)
+            {
+                for(size_t p = 0; p < pairs.size(); p++)// pairs search
+                {
+                    for(size_t i = 0; i < 9; i++)
+                    {
+                        cube_row = ((row / 3) * 3) + (i % 3);
+                        cube_colum = ((colum / 3) * 3) + (i / 3);
+                        index = (cube_colum * 9) + cube_row;
+                        if(indexA == string::npos)
+                        {
+                            if(possible[index].find(pairs[pairs.size() - 2]) != string::npos)
+                            {
+                                if(possible[index].find(pairs[pairs.size() - 1]) != string::npos)
+                                {
+                                    indexA = index;
+                                }
+                            }
+                        }
+                        else if(indexB == string::npos)
+                        {
+                            if(possible[index].find(pairs[pairs.size() - 2]) != string::npos)
+                            {
+                                if(possible[index].find(pairs[pairs.size() - 1]) != string::npos)
+                                {
+                                    indexB = index;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if(possible[index].find(pairs[pairs.size() - 2]) != string::npos)
+                            {
+                                if(possible[index].find(pairs[pairs.size() - 1]) != string::npos)
+                                {
+                                    pairs.pop_back();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /*****************************************/
+    void find_obvious_pairs(void)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t index;
+        size_t subindex;
+        size_t lastindex;
+        char pairA, pairB;
+        for(size_t i = 0; i < 9; i++)
+        {
+            colum = (i / 3) * 3;
+            row = (i * 3) % 9;
+            for(size_t i = 0; i < 9; i++)
+            {
+                cube_row = ((row / 3) * 3) + (i % 3);
+                cube_colum = ((colum / 3) * 3) + (i / 3);
+                index = (cube_colum * 9) + cube_row;
+                if(possible[index].size() == 2)
+                {
+                    for(size_t i = 0; i < 9; i++)
+                    {
+                        cube_row = ((row / 3) * 3) + (i % 3);
+                        cube_colum = ((colum / 3) * 3) + (i / 3);
+                        subindex = (cube_colum * 9) + cube_row;
+                        if(subindex != index && possible[subindex].size() == 2)
+                        {
+                            if(possible[subindex] == possible[index])
+                            {
+                                pairA = possible[subindex][0];
+                                pairB = possible[subindex][1];
+                                for(size_t i = 0; i < 9; i++)
+                                {
+                                    cube_row = ((row / 3) * 3) + (i % 3);
+                                    cube_colum = ((colum / 3) * 3) + (i / 3);
+                                    lastindex = (cube_colum * 9) + cube_row;
+                                    if(lastindex != index && lastindex != subindex)
+                                    {
+                                        //if(possible[lastindex].find(pairA) != string::npos)
+                                        {
+                                            possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairA), possible[lastindex].end());
+                                        }
+                                        //if(possible[lastindex].find(pairB) != string::npos)
+                                        {
+                                            possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairB), possible[lastindex].end());
+                                        }
+                                    }
+                                }
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /*****************************************/
     bool find_number(vector<vector<char>> &board)
     {
         size_t row, cube_row;
@@ -162,6 +385,8 @@ public:
         while(find_number(board))
         {
             releated_extract_number();
+            find_obvious_pairs();
+            find_obvious_triples();
         }
     }
 };
