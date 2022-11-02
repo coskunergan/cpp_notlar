@@ -25,93 +25,393 @@ private:
         "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
     };
     /*****************************************/
-    void direct_extract_number(size_t colum, size_t row, char c)
-    {
-        size_t cube_row;
-        size_t cube_colum;
-        size_t index = (colum * 9) + row;
-        size_t i;
-        possible[index].erase();
-        for(i = 0; i < 9; i++)
-        {
-            index = (colum * 9) + i;
-            possible[index].erase(remove(possible[index].begin(), possible[index].end(), c), possible[index].end());
-            index = (i * 9) + row;
-            possible[index].erase(remove(possible[index].begin(), possible[index].end(), c), possible[index].end());
-            cube_row = ((row / 3) * 3) + (i % 3);
-            cube_colum = ((colum / 3) * 3) + (i / 3);
-            index = (cube_colum * 9) + cube_row;
-            possible[index].erase(remove(possible[index].begin(), possible[index].end(), c), possible[index].end());
-        }
-    }
-    /*****************************************/
-    void releated_extract_number(void)
+    void find_pointing_triples(void)
     {
         size_t row, cube_row;
         size_t colum, cube_colum;
         size_t index;
-        size_t subindex;
-        size_t i;
-
-        for(colum = 0; colum < 9; colum++)
+        size_t indexA;
+        vector<char> pairs;
+        vector<size_t> count{0, 0, 0, 0, 0, 0, 0, 0, 0};
+        // test
+        // possible[0].erase();
+        // possible[1].erase();
+        // possible[1] = "1234";
+        // possible[2].erase();
+        // possible[9].erase();
+        // possible[10].erase();
+        // possible[10] = "1567";
+        // possible[11].erase();
+        // possible[18].erase();
+        // possible[19].erase();
+        // possible[19] = "189";
+        // possible[20].erase();
+        // test
+        for(size_t i = 0; i < 9; i++)
         {
-            for(row = 0; row < 9; row++)
+            for(size_t &c : count)
             {
-                index = (colum * 9) + row;
+                c = 0;
+            }
+            pairs.clear();
+            colum = (i / 3) * 3;
+            row = (i * 3) % 9;
+            for(size_t i = 0; i < 9; i++)// count use numb.
+            {
+                cube_row = ((row / 3) * 3) + (i % 3);
+                cube_colum = ((colum / 3) * 3) + (i / 3);
+                index = (cube_colum * 9) + cube_row;
                 for(char c : possible[index])
                 {
-                    if(c)
+                    count[c - '1']++;
+                }
+            }
+            for(size_t i = 0; i < count.size(); i++) // find pairs.
+            {
+                if(count[i] == 3)
+                {
+                    pairs.push_back(i + '1');
+                }
+            }
+            for(char pair : pairs)
+            {
+                for(size_t i = 0; i < 9; i += 3)
+                {
+                    cube_row = ((row / 3) * 3) + (i % 3);
+                    cube_colum = ((colum / 3) * 3) + (i / 3);
+                    index = (cube_colum * 9) + cube_row;
+                    if(possible[index].find(pair) != string::npos &&
+                            possible[index + 1].find(pair) != string::npos &&
+                            possible[index + 2].find(pair) != string::npos)
                     {
-                        for(i = 0; i < 9; i++)
+                        for(size_t i = 0; i < 9; i++)
                         {
-                            subindex = (colum * 9) + i;
-                            if(index != subindex)
+                            size_t j = cube_colum * 9 + i;
+                            if(j != index && j != (index + 1) && j != (index + 2))
                             {
-                                if(possible[subindex].find(c) != string::npos)
-                                {
-                                    break;
-                                }
+                                possible[j].erase(remove(possible[j].begin(), possible[j].end(), pair), possible[j].end());
                             }
                         }
-                        if(i == 9)
+                        cout << "Applies pointing triples.\n";
+                        break;
+                    }
+                }
+                for(size_t i = 0; i < 3; i++)
+                {
+                    cube_row = ((row / 3) * 3) + (i % 3);
+                    cube_colum = ((colum / 3) * 3) + (i / 3);
+                    index = (cube_colum * 9) + cube_row;
+                    if(possible[index].find(pair) != string::npos &&
+                            possible[index + 9].find(pair) != string::npos &&
+                            possible[index + 18].find(pair) != string::npos)
+                    {
+                        for(size_t i = 0; i < 9; i++)
                         {
-                            possible[index].erase();
-                            possible[index].push_back(c);
-                        }
-                        for(i = 0; i < 9; i++)
-                        {
-                            subindex = (i * 9) + row;
-                            if(index != subindex)
+                            size_t j = i * 9 + cube_row;
+                            if(j != index && j != (index + 9) && j != (index + 18))
                             {
-                                if(possible[subindex].find(c) != string::npos)
-                                {
-                                    break;
-                                }
+                                possible[j].erase(remove(possible[j].begin(), possible[j].end(), pair), possible[j].end());
                             }
                         }
-                        if(i == 9)
-                        {
-                            possible[index].erase();
-                            possible[index].push_back(c);
-                        }
-                        for(i = 0; i < 9; i++)
+                        cout << "Applies pointing triples.\n";
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    /*****************************************/
+    void find_pointing_pairs(void)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t index;
+        size_t indexA;
+        vector<char> pairs;
+        vector<size_t> count{0, 0, 0, 0, 0, 0, 0, 0, 0};
+        // test
+        // possible[0].erase();
+        // possible[0] = "1234";
+        // possible[1].erase();
+        // possible[2].erase();
+        // possible[9].erase();
+        // possible[9] = "2567";
+        // possible[10].erase();
+        // possible[11].erase();
+        // possible[18].erase();
+        // possible[19].erase();
+        // possible[19] = "89";
+        // possible[20].erase();
+        // possible[20] = "89";
+        // test
+        for(size_t i = 0; i < 9; i++)
+        {
+            for(size_t &c : count)
+            {
+                c = 0;
+            }
+            pairs.clear();
+            colum = (i / 3) * 3;
+            row = (i * 3) % 9;
+            for(size_t i = 0; i < 9; i++)// count use numb.
+            {
+                cube_row = ((row / 3) * 3) + (i % 3);
+                cube_colum = ((colum / 3) * 3) + (i / 3);
+                index = (cube_colum * 9) + cube_row;
+                for(char c : possible[index])
+                {
+                    count[c - '1']++;
+                }
+            }
+            for(size_t i = 0; i < count.size(); i++) // find pairs.
+            {
+                if(count[i] == 2)
+                {
+                    pairs.push_back(i + '1');
+                }
+            }
+            for(char pairA : pairs)
+            {
+                for(size_t i = 0; i < 9; i++)
+                {
+                    cube_row = ((row / 3) * 3) + (i % 3);
+                    cube_colum = ((colum / 3) * 3) + (i / 3);
+                    index = (cube_colum * 9) + cube_row;
+                    if(possible[index].find(pairA) != string::npos)
+                    {
+                        indexA = index;
+                        for(size_t i = 0; i < 9; i++)
                         {
                             cube_row = ((row / 3) * 3) + (i % 3);
                             cube_colum = ((colum / 3) * 3) + (i / 3);
-                            subindex = (cube_colum * 9) + cube_row;
-                            if(index != subindex)
+                            index = (cube_colum * 9) + cube_row;
+                            if(index != indexA)
                             {
-                                if(possible[subindex].find(c) != string::npos)
+                                if(possible[index].find(pairA) != string::npos)
                                 {
+                                    if((index - indexA) <= 3)
+                                    {
+                                        for(size_t i = 0; i < 9; i++)
+                                        {
+                                            size_t j = cube_colum * 9 + i;
+                                            if(j != index && j != indexA)
+                                            {
+                                                possible[j].erase(remove(possible[j].begin(), possible[j].end(), pairA), possible[j].end());
+                                            }
+                                        }
+                                        cout << "Applies pointing pairs.\n";
+                                    }
+                                    else if(((index - indexA) % 9) == 0)
+                                    {
+                                        for(size_t i = 0; i < 9; i++)
+                                        {
+                                            size_t j = i * 9 + cube_row;
+                                            if(j != index && j != indexA)
+                                            {
+                                                possible[j].erase(remove(possible[j].begin(), possible[j].end(), pairA), possible[j].end());
+                                            }
+                                        }
+                                        cout << "Applies pointing pairs.\n";
+                                    }
+                                    pairA = 0;
                                     break;
                                 }
                             }
                         }
-                        if(i == 9)
+                    }
+                }
+            }
+        }
+    }
+    /*****************************************/
+    void find_hidded_triples(void)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t index;
+        size_t indexA;
+        vector<char> pairs;
+        vector<size_t> count{0, 0, 0, 0, 0, 0, 0, 0, 0};
+        char pairA, pairB, pairC;
+        // test
+        // possible[0].erase();
+        // possible[0] = "1234";
+        // possible[1].erase();
+        // possible[1] = "2378";
+        // possible[2].erase();
+        // possible[9].erase();
+        // possible[10].erase();
+        // possible[11].erase();
+        // possible[18].erase();
+        // possible[19].erase();
+        // possible[19] = "579";
+        // possible[20].erase();
+        // possible[20] = "159";
+        // test
+        for(size_t i = 0; i < 9; i++)
+        {
+            for(size_t &c : count)
+            {
+                c = 0;
+            }
+            pairs.clear();
+            colum = (i / 3) * 3;
+            row = (i * 3) % 9;
+            for(size_t i = 0; i < 9; i++)// count use numb.
+            {
+                cube_row = ((row / 3) * 3) + (i % 3);
+                cube_colum = ((colum / 3) * 3) + (i / 3);
+                index = (cube_colum * 9) + cube_row;
+                for(char c : possible[index])
+                {
+                    count[c - '1']++;
+                }
+            }
+            for(size_t i = 0; i < count.size(); i++) // find pairs.
+            {
+                if(count[i] == 2)
+                {
+                    pairs.push_back(i + '1');
+                }
+            }
+            while(pairs.size() >= 3)
+            {
+                pairA = pairs.back();
+                for(size_t i = 0; i < 9; i++)
+                {
+                    cube_row = ((row / 3) * 3) + (i % 3);
+                    cube_colum = ((colum / 3) * 3) + (i / 3);
+                    index = (cube_colum * 9) + cube_row;
+                    if(possible[index].find(pairA) != string::npos)
+                    {
+                        indexA = index;
+                        for(size_t i = 0; i < pairs.size(); i++)
                         {
-                            possible[index].erase();
-                            possible[index].push_back(c);
+                            if(pairs[i] != pairA)
+                            {
+                                if(possible[index].find(pairs[i]) != string::npos)
+                                {
+                                    pairB = pairs[i];
+                                    for(size_t i = 0; i < 9; i++)
+                                    {
+                                        cube_row = ((row / 3) * 3) + (i % 3);
+                                        cube_colum = ((colum / 3) * 3) + (i / 3);
+                                        index = (cube_colum * 9) + cube_row;
+                                        if(index != indexA && possible[index].find(pairA) != string::npos && possible[index].find(pairB) != string::npos)
+                                        {
+                                            // code
+                                        }
+                                    }
+                                }
+                            }
                         }
+                    }
+                }
+            }
+        }
+    }
+    /*****************************************/
+    void find_hidded_pairs(void)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t index;
+        size_t indexA;
+        vector<char> pairs;
+        vector<size_t> count{0, 0, 0, 0, 0, 0, 0, 0, 0};
+        char pairA;
+        // test
+        // possible[0].erase();
+        // possible[0] = "1234";
+        // possible[1].erase();
+        // possible[1] = "2378";
+        // possible[2].erase();
+        // possible[9].erase();
+        // possible[10].erase();
+        // possible[11].erase();
+        // possible[18].erase();
+        // possible[19].erase();
+        // possible[19] = "579";
+        // possible[20].erase();
+        // possible[20] = "159";
+        // test
+        for(size_t i = 0; i < 9; i++)
+        {
+            for(size_t &c : count)
+            {
+                c = 0;
+            }
+            pairs.clear();
+            colum = (i / 3) * 3;
+            row = (i * 3) % 9;
+            for(size_t i = 0; i < 9; i++)// count use numb.
+            {
+                cube_row = ((row / 3) * 3) + (i % 3);
+                cube_colum = ((colum / 3) * 3) + (i / 3);
+                index = (cube_colum * 9) + cube_row;
+                for(char c : possible[index])
+                {
+                    count[c - '1']++;
+                }
+            }
+            for(size_t i = 0; i < count.size(); i++) // find pairs.
+            {
+                if(count[i] == 2)
+                {
+                    pairs.push_back(i + '1');
+                }
+            }
+            while(pairs.size() >= 2)
+            {
+                pairA = pairs.back();
+                for(size_t i = 0; i < 9; i++)
+                {
+                    cube_row = ((row / 3) * 3) + (i % 3);
+                    cube_colum = ((colum / 3) * 3) + (i / 3);
+                    index = (cube_colum * 9) + cube_row;
+                    if(possible[index].find(pairA) != string::npos)
+                    {
+                        indexA = index;
+                        for(size_t i = 0; i < 9; i++)
+                        {
+                            cube_row = ((row / 3) * 3) + (i % 3);
+                            cube_colum = ((colum / 3) * 3) + (i / 3);
+                            index = (cube_colum * 9) + cube_row;
+                            if(index != indexA)
+                            {
+                                if(possible[index].find(pairA) != string::npos)
+                                {
+                                    for(size_t i = 0; i < pairs.size(); i++)
+                                    {
+                                        if(pairs[i] != pairA)
+                                        {
+                                            if(possible[index].find(pairs[i]) != string::npos)
+                                            {
+                                                if(possible[indexA].find(pairs[i]) != string::npos)
+                                                {
+                                                    if(possible[indexA].size() > 2 || possible[index].size() > 2)
+                                                    {
+                                                        possible[indexA].erase();
+                                                        possible[indexA].push_back(pairA);
+                                                        possible[indexA].push_back(pairs[i]);
+                                                        pairs.erase(remove(pairs.begin(), pairs.end(), pairA), pairs.end());// already remove
+                                                        possible[index].erase();
+                                                        possible[index].push_back(pairA);
+                                                        possible[index].push_back(pairs[i]);
+                                                        pairs.erase(remove(pairs.begin(), pairs.end(), pairs[i]), pairs.end());
+                                                        pairA = 0;
+                                                        cout << "Applies hidden pairs.\n";
+                                                    }
+                                                    break;
+
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        pairs.erase(remove(pairs.begin(), pairs.end(), pairA), pairs.end());
                     }
                 }
             }
@@ -199,85 +499,8 @@ private:
                                     possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripC), possible[index].end());
                                 }
                             }
+                            cout << "Applies obvious triples.\n";
                             return;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    /*****************************************/
-    void find_hidded_pairs(void)
-    {
-        size_t row, cube_row;
-        size_t colum, cube_colum;
-        size_t index;
-        size_t indexA;
-        size_t indexB;
-        vector<char> pairs;
-        vector<size_t> count;
-        size_t testB;
-        char pair;
-        for(size_t i = 0; i < 9; i++)
-        {
-            colum = (i / 3) * 3;
-            row = (i * 3) % 9;
-            for(size_t i = 0; i < 9; i++)// count use numb.
-            {
-                cube_row = ((row / 3) * 3) + (i % 3);
-                cube_colum = ((colum / 3) * 3) + (i / 3);
-                index = (cube_colum * 9) + cube_row;
-                for(char c : possible[index])
-                {
-                    count[c - '1']++;
-                }
-            }
-            for(size_t i = 0; i < count.size(); i++) // find pairs.
-            {
-                if(count[i] == 2)
-                {
-                    pairs.push_back(i + '1');
-                }
-            }
-            indexA = indexB = string::npos;
-            if(pairs.size() >= 2)
-            {
-                for(size_t p = 0; p < pairs.size(); p++)// pairs search
-                {
-                    for(size_t i = 0; i < 9; i++)
-                    {
-                        cube_row = ((row / 3) * 3) + (i % 3);
-                        cube_colum = ((colum / 3) * 3) + (i / 3);
-                        index = (cube_colum * 9) + cube_row;
-                        if(indexA == string::npos)
-                        {
-                            if(possible[index].find(pairs[pairs.size() - 2]) != string::npos)
-                            {
-                                if(possible[index].find(pairs[pairs.size() - 1]) != string::npos)
-                                {
-                                    indexA = index;
-                                }
-                            }
-                        }
-                        else if(indexB == string::npos)
-                        {
-                            if(possible[index].find(pairs[pairs.size() - 2]) != string::npos)
-                            {
-                                if(possible[index].find(pairs[pairs.size() - 1]) != string::npos)
-                                {
-                                    indexB = index;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if(possible[index].find(pairs[pairs.size() - 2]) != string::npos)
-                            {
-                                if(possible[index].find(pairs[pairs.size() - 1]) != string::npos)
-                                {
-                                    pairs.pop_back();
-                                }
-                            }
                         }
                     }
                 }
@@ -322,16 +545,11 @@ private:
                                     lastindex = (cube_colum * 9) + cube_row;
                                     if(lastindex != index && lastindex != subindex)
                                     {
-                                        //if(possible[lastindex].find(pairA) != string::npos)
-                                        {
-                                            possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairA), possible[lastindex].end());
-                                        }
-                                        //if(possible[lastindex].find(pairB) != string::npos)
-                                        {
-                                            possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairB), possible[lastindex].end());
-                                        }
+                                        possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairA), possible[lastindex].end());
+                                        possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairB), possible[lastindex].end());
                                     }
                                 }
+                                cout << "Applies obvious paris.\n";
                                 return;
                             }
                         }
@@ -341,12 +559,104 @@ private:
         }
     }
     /*****************************************/
-    bool find_number(vector<vector<char>> &board)
+    void releated_extract_number(void)
     {
         size_t row, cube_row;
         size_t colum, cube_colum;
-        size_t match;
-        char c, res;
+        size_t index;
+        size_t subindex;
+        size_t i;
+
+        for(colum = 0; colum < 9; colum++)
+        {
+            for(row = 0; row < 9; row++)
+            {
+                index = (colum * 9) + row;
+                for(char c : possible[index])
+                {
+                    if(c)
+                    {
+                        for(i = 0; i < 9; i++)
+                        {
+                            subindex = (colum * 9) + i;
+                            if(index != subindex)
+                            {
+                                if(possible[subindex].find(c) != string::npos)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        if(i == 9)
+                        {
+                            possible[index].erase();
+                            possible[index].push_back(c);
+                        }
+                        for(i = 0; i < 9; i++)
+                        {
+                            subindex = (i * 9) + row;
+                            if(index != subindex)
+                            {
+                                if(possible[subindex].find(c) != string::npos)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        if(i == 9)
+                        {
+                            possible[index].erase();
+                            possible[index].push_back(c);
+                        }
+                        for(i = 0; i < 9; i++)
+                        {
+                            cube_row = ((row / 3) * 3) + (i % 3);
+                            cube_colum = ((colum / 3) * 3) + (i / 3);
+                            subindex = (cube_colum * 9) + cube_row;
+                            if(index != subindex)
+                            {
+                                if(possible[subindex].find(c) != string::npos)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        if(i == 9)
+                        {
+                            possible[index].erase();
+                            possible[index].push_back(c);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /*****************************************/
+    void direct_extract_number(size_t colum, size_t row, char c)
+    {
+        size_t cube_row;
+        size_t cube_colum;
+        size_t index = (colum * 9) + row;
+        size_t i;
+        possible[index].erase();
+        for(i = 0; i < 9; i++)
+        {
+            index = (colum * 9) + i;
+            possible[index].erase(remove(possible[index].begin(), possible[index].end(), c), possible[index].end());
+            index = (i * 9) + row;
+            possible[index].erase(remove(possible[index].begin(), possible[index].end(), c), possible[index].end());
+            cube_row = ((row / 3) * 3) + (i % 3);
+            cube_colum = ((colum / 3) * 3) + (i / 3);
+            index = (cube_colum * 9) + cube_row;
+            possible[index].erase(remove(possible[index].begin(), possible[index].end(), c), possible[index].end());
+        }
+    }
+    /*****************************************/
+    bool find_number(vector<vector<char>> &board)
+    {
+        size_t row;
+        size_t colum;
+        char c;
         bool solve = false;
         for(colum = 0; colum < 9; colum++)
         {
@@ -367,10 +677,9 @@ private:
 public:
     void solveSudoku(vector<vector<char>> &board)
     {
-        size_t row, cube_row;
-        size_t colum, cube_colum;
-        size_t match;
-        char c, res;
+        size_t row;
+        size_t colum;
+        char c;
         for(colum = 0; colum < 9; colum++)
         {
             for(row = 0; row < 9; row++)
@@ -382,12 +691,16 @@ public:
                 }
             }
         }
-        while(find_number(board))
+        do
         {
             releated_extract_number();
             find_obvious_pairs();
             find_obvious_triples();
+            find_hidded_pairs();
+            find_pointing_pairs();
+            find_pointing_triples();
         }
+        while(find_number(board));
     }
 };
 //////////////////////////////
