@@ -25,6 +25,16 @@ private:
         "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
     };
     /*****************************************/
+    void find_x_wing(void)
+    {
+        size_t row, cube_row;
+        size_t colum, cube_colum;
+        size_t index;
+        size_t indexA;
+        vector<char> pairs;
+        //comming soon..
+    }
+    /*****************************************/
     void find_pointing_triples(void)
     {
         size_t row, cube_row;
@@ -230,23 +240,28 @@ private:
         size_t colum, cube_colum;
         size_t index;
         size_t indexA;
+        size_t indexB;
         vector<char> pairs;
+        vector<char> triples;
         vector<size_t> count{0, 0, 0, 0, 0, 0, 0, 0, 0};
-        char pairA, pairB, pairC;
+        char tripleA, pair;
         // test
         // possible[0].erase();
-        // possible[0] = "1234";
+        // possible[0] = "34";
         // possible[1].erase();
-        // possible[1] = "2378";
         // possible[2].erase();
+        // possible[2] = "348";
         // possible[9].erase();
+        // possible[9] = "368";
         // possible[10].erase();
+        // possible[10] = "1357";
         // possible[11].erase();
+        // possible[11] = "348";
         // possible[18].erase();
+        // possible[18] = "1578";
         // possible[19].erase();
-        // possible[19] = "579";
         // possible[20].erase();
-        // possible[20] = "159";
+        // possible[20] = "167";
         // test
         for(size_t i = 0; i < 9; i++)
         {
@@ -273,33 +288,103 @@ private:
                 {
                     pairs.push_back(i + '1');
                 }
-            }
-            while(pairs.size() >= 3)
-            {
-                pairA = pairs.back();
-                for(size_t i = 0; i < 9; i++)
+                if(count[i] == 3)
                 {
-                    cube_row = ((row / 3) * 3) + (i % 3);
-                    cube_colum = ((colum / 3) * 3) + (i / 3);
-                    index = (cube_colum * 9) + cube_row;
-                    if(possible[index].find(pairA) != string::npos)
+                    triples.push_back(i + '1');
+                }
+            }
+            while(triples.size() >= 2)
+            {
+                tripleA = triples.back();
+                triples.pop_back();
+                for(char tripleB : triples)
+                {
+                    for(size_t i = 0; i < 9; i++)
                     {
-                        indexA = index;
-                        for(size_t i = 0; i < pairs.size(); i++)
+                        cube_row = ((row / 3) * 3) + (i % 3);
+                        cube_colum = ((colum / 3) * 3) + (i / 3);
+                        index = (cube_colum * 9) + cube_row;
+                        if(possible[index].find(tripleA) != string::npos && possible[index].find(tripleB) != string::npos)
                         {
-                            if(pairs[i] != pairA)
+                            indexA = index;
+                            for(size_t i = 0; i < 9; i++)
                             {
-                                if(possible[index].find(pairs[i]) != string::npos)
+                                cube_row = ((row / 3) * 3) + (i % 3);
+                                cube_colum = ((colum / 3) * 3) + (i / 3);
+                                index = (cube_colum * 9) + cube_row;
+                                if(index != indexA)
                                 {
-                                    pairB = pairs[i];
-                                    for(size_t i = 0; i < 9; i++)
+                                    if(possible[index].find(tripleA) != string::npos && possible[index].find(tripleB) != string::npos)
                                     {
-                                        cube_row = ((row / 3) * 3) + (i % 3);
-                                        cube_colum = ((colum / 3) * 3) + (i / 3);
-                                        index = (cube_colum * 9) + cube_row;
-                                        if(index != indexA && possible[index].find(pairA) != string::npos && possible[index].find(pairB) != string::npos)
+                                        indexB = index;
+                                        for(size_t i = 0; i < 9; i++)
                                         {
-                                            // code
+                                            cube_row = ((row / 3) * 3) + (i % 3);
+                                            cube_colum = ((colum / 3) * 3) + (i / 3);
+                                            index = (cube_colum * 9) + cube_row;
+                                            if(index != indexA && index != indexB)
+                                            {
+                                                if(possible[index].find(tripleA) != string::npos && possible[index].find(tripleB) != string::npos)
+                                                {
+                                                    for(char pair : pairs)
+                                                    {
+                                                        if(possible[index].find(pair) != string::npos)
+                                                        {
+                                                            if(possible[indexA].find(pair) != string::npos)
+                                                            {
+                                                                possible[index].erase();
+                                                                possible[indexA].erase();
+                                                                possible[indexB].erase();
+                                                                possible[index].push_back(tripleA);
+                                                                possible[indexA].push_back(tripleA);
+                                                                possible[indexB].push_back(tripleA);
+                                                                possible[index].push_back(tripleB);
+                                                                possible[indexA].push_back(tripleB);
+                                                                possible[indexB].push_back(tripleB);
+                                                                possible[index].push_back(pair);
+                                                                possible[indexA].push_back(pair);
+                                                                cout << "Applies hidden triples.\n";
+                                                                break;
+                                                            }
+                                                            else if(possible[indexB].find(pair) != string::npos)
+                                                            {
+                                                                possible[index].erase();
+                                                                possible[indexA].erase();
+                                                                possible[indexB].erase();
+                                                                possible[index].push_back(tripleA);
+                                                                possible[indexA].push_back(tripleA);
+                                                                possible[indexB].push_back(tripleA);
+                                                                possible[index].push_back(tripleB);
+                                                                possible[indexA].push_back(tripleB);
+                                                                possible[indexB].push_back(tripleB);
+                                                                possible[index].push_back(pair);
+                                                                possible[indexB].push_back(pair);
+                                                                cout << "Applies hidden triples.\n";
+                                                                break;
+                                                            }
+                                                        }
+                                                        else if(possible[indexA].find(pair) != string::npos)
+                                                        {
+                                                            if(possible[indexB].find(pair) != string::npos)
+                                                            {
+                                                                possible[index].erase();
+                                                                possible[indexA].erase();
+                                                                possible[indexB].erase();
+                                                                possible[index].push_back(tripleA);
+                                                                possible[indexA].push_back(tripleA);
+                                                                possible[indexB].push_back(tripleA);
+                                                                possible[index].push_back(tripleB);
+                                                                possible[indexA].push_back(tripleB);
+                                                                possible[indexB].push_back(tripleB);
+                                                                possible[indexA].push_back(pair);
+                                                                possible[indexB].push_back(pair);
+                                                                cout << "Applies hidden triples.\n";
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -699,8 +784,10 @@ public:
             find_hidded_pairs();
             find_pointing_pairs();
             find_pointing_triples();
+            find_hidded_triples();
+            find_x_wing();
         }
-        while(find_number(board));
+        while(find_number(board));    
     }
 };
 //////////////////////////////
