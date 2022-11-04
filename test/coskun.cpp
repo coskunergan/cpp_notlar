@@ -25,14 +25,153 @@ private:
         "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
     };
     /*****************************************/
-    void find_x_wing(void)
+    void find_swordfish(void)
     {
         size_t row, cube_row;
         size_t colum, cube_colum;
         size_t index;
         size_t indexA;
+        size_t indexB;
+        size_t count;
+        vector<size_t> adr_list;
+        vector<size_t> candidate_listA;
+        vector<size_t> candidate_listB;
+        vector<size_t> candidate_listC;
         vector<char> pairs;
-        //comming soon..
+        vector<char> triples;
+        for(char fish = '1'; fish <= '9'; fish++)
+        {
+            candidate_listA.clear();
+            candidate_listB.clear();
+            candidate_listC.clear();
+            for(size_t colum = 0; colum < 9; colum++)
+            {
+                count = 0;
+                adr_list.clear();
+                for(size_t row = 0; row < 9; row++)
+                {
+                    index = (colum * 9) + row;
+                    if(possible[index].find(fish) != string::npos)
+                    {
+                        adr_list.push_back(index);
+                        count++;
+                    }
+                }
+                if(count == 2 || count == 3)
+                {
+                    if(candidate_listA.size() == 0)
+                    {
+                        candidate_listA = adr_list;
+                    }
+                    else if(candidate_listB.size() == 0)
+                    {
+                        count = 0;
+                        for(size_t x : candidate_listA)
+                        {
+                            for(size_t y : adr_list)
+                            {
+                                if(x + ((adr_list[0] / 9) - (candidate_listA[0] / 9)) * 9 == y)
+                                {
+                                    count++;
+                                }
+                            }
+                        }
+                        if(candidate_listA.size() == 3)
+                        {
+                            if((adr_list.size() == 3 && count == 3) || (adr_list.size() == 2 && count))
+                            {
+                                candidate_listB = adr_list;
+                            }
+                        }
+                        else
+                        {
+                            if((adr_list.size() == 3 && count == 2) || (adr_list.size() == 2 && count))
+                            {
+                                candidate_listB = adr_list;
+                            }
+                        }
+                    }
+                    else if(candidate_listC.size() == 0)
+                    {
+                        count = 0;
+                        for(size_t x : candidate_listB)
+                        {
+                            for(size_t y : adr_list)
+                            {
+                                if(x + ((adr_list[0] / 9) - (candidate_listB[0] / 9)) * 9 == y)
+                                {
+                                    count++;
+                                }
+                            }
+                        }
+                        if(candidate_listB.size() == 3)
+                        {
+                            if((adr_list.size() == 3 && count == 3) || (adr_list.size() == 2 && count))
+                            {
+                                candidate_listC = adr_list;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if((adr_list.size() == 3 && count == 2) || (adr_list.size() == 2 && count))
+                            {
+                                candidate_listC = adr_list;
+                                break;
+                            }
+                        }                        
+                    }
+                }
+            }
+            if(candidate_listC.size())
+            {
+                // erase code..
+                if(candidate_listA.size() == 3)
+                {
+                    adr_list = candidate_listA;
+                }
+                else if(candidate_listB.size() == 3)
+                {
+                    adr_list = candidate_listB;
+                }
+                else
+                {
+                    adr_list = candidate_listC;
+                }
+                for(size_t x : adr_list)
+                {
+                    for(size_t i = x % 9; i <= 72; i += 9)
+                    {
+                        count = 0;
+                        for(size_t check : candidate_listA)
+                        {
+                            if(i == check)
+                            {
+                                count++;
+                            }
+                        }
+                        for(size_t check : candidate_listB)
+                        {
+                            if(i == check)
+                            {
+                                count++;
+                            }
+                        }
+                        for(size_t check : candidate_listC)
+                        {
+                            if(i == check)
+                            {
+                                count++;
+                            }
+                        }
+                        if(count == 0)
+                        {
+                            possible[i].erase(remove(possible[i].begin(), possible[i].end(), fish), possible[i].end());
+                        }
+                    }
+                }
+            }
+        }
     }
     /*****************************************/
     void find_pointing_triples(void)
@@ -785,9 +924,9 @@ public:
             find_pointing_pairs();
             find_pointing_triples();
             find_hidded_triples();
-            find_x_wing();
+            find_swordfish();
         }
-        while(find_number(board));    
+        while(find_number(board));        
     }
 };
 //////////////////////////////
@@ -798,6 +937,7 @@ int main()
     Solution x;
 
     vector<vector<char>> board{{'.', '.', '9', '7', '4', '8', '.', '.', '.'}, {'7', '.', '.', '.', '.', '.', '.', '.', '.'}, {'.', '2', '.', '1', '.', '9', '.', '.', '.'}, {'.', '.', '7', '.', '.', '.', '2', '4', '.'}, {'.', '6', '4', '.', '1', '.', '5', '9', '.'}, {'.', '9', '8', '.', '.', '.', '3', '.', '.'}, {'.', '.', '.', '8', '.', '3', '.', '2', '.'}, {'.', '.', '.', '.', '.', '.', '.', '.', '6'}, {'.', '.', '.', '2', '7', '5', '9', '.', '.'}};
+    //vector<vector<char>> board{{'5', '1', '9', '7', '4', '8', '6', '3', '2'}, {'7', '8', '3', '6', '5', '2', '4', '1', '9'}, {'4', '2', '6', '1', '3', '9', '8', '7', '5'}, {'3', '5', '7', '9', '8', '6', '2', '4', '1'}, {'2', '6', '4', '3', '1', '7', '5', '9', '8'}, {'1', '9', '8', '5', '2', '4', '3', '6', '7'}, {'9', '7', '5', '8', '6', '3', '1', '2', '4'}, {'8', '3', '2', '4', '9', '1', '7', '5', '6'}, {'6', '4', '1', '2', '7', '5', '9', '8', '3'}};
     vector<vector<char>> solve{{'5', '1', '9', '7', '4', '8', '6', '3', '2'}, {'7', '8', '3', '6', '5', '2', '4', '1', '9'}, {'4', '2', '6', '1', '3', '9', '8', '7', '5'}, {'3', '5', '7', '9', '8', '6', '2', '4', '1'}, {'2', '6', '4', '3', '1', '7', '5', '9', '8'}, {'1', '9', '8', '5', '2', '4', '3', '6', '7'}, {'9', '7', '5', '8', '6', '3', '1', '2', '4'}, {'8', '3', '2', '4', '9', '1', '7', '5', '6'}, {'6', '4', '1', '2', '7', '5', '9', '8', '3'}};
 
     cout << "----------begin--------\n";
