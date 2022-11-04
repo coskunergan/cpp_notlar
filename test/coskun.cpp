@@ -119,28 +119,30 @@ private:
                                 candidate_listC = adr_list;
                                 break;
                             }
-                        }                        
+                        }
                     }
                 }
             }
             if(candidate_listC.size())
             {
                 // erase code..
-                if(candidate_listA.size() == 3)
+                cout << "Applies swordfish.(" << fish << ")\n";
+                adr_list.clear();
+                for(size_t x : candidate_listA)
                 {
-                    adr_list = candidate_listA;
+                    adr_list.push_back(x);
                 }
-                else if(candidate_listB.size() == 3)
+                for(size_t x : candidate_listB)
                 {
-                    adr_list = candidate_listB;
+                    adr_list.push_back(x);
                 }
-                else
+                for(size_t x : candidate_listC)
                 {
-                    adr_list = candidate_listC;
+                    adr_list.push_back(x);
                 }
                 for(size_t x : adr_list)
                 {
-                    for(size_t i = x % 9; i <= 72; i += 9)
+                    for(size_t i = x % 9; i < 81; i += 9)
                     {
                         count = 0;
                         for(size_t check : candidate_listA)
@@ -926,7 +928,7 @@ public:
             find_hidded_triples();
             find_swordfish();
         }
-        while(find_number(board));        
+        while(find_number(board));
     }
 };
 //////////////////////////////
