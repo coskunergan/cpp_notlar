@@ -11,7 +11,7 @@ using namespace std;
 //////////////////////////////
 class Solution
 {
-private:
+public:
     string possible[81]
     {
         "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789", "123456789",
@@ -30,20 +30,20 @@ private:
         size_t row, cube_row;
         size_t colum, cube_colum;
         size_t index;
-        size_t indexA;
-        size_t indexB;
         size_t count;
+        size_t high_index;
+        size_t low_index;
         vector<size_t> adr_list;
         vector<size_t> candidate_listA;
         vector<size_t> candidate_listB;
         vector<size_t> candidate_listC;
-        vector<char> pairs;
-        vector<char> triples;
         for(char fish = '1'; fish <= '9'; fish++)
         {
             candidate_listA.clear();
             candidate_listB.clear();
             candidate_listC.clear();
+            high_index = 0;
+            low_index = 9;
             for(size_t colum = 0; colum < 9; colum++)
             {
                 count = 0;
@@ -62,6 +62,17 @@ private:
                     if(candidate_listA.size() == 0)
                     {
                         candidate_listA = adr_list;
+                        for(size_t val : adr_list)
+                        {
+                            if(high_index < val % 9)
+                            {
+                                high_index = val % 9;
+                            }
+                            if(low_index > val % 9)
+                            {
+                                low_index = val % 9;
+                            }
+                        }
                     }
                     else if(candidate_listB.size() == 0)
                     {
@@ -78,9 +89,20 @@ private:
                         }
                         if(candidate_listA.size() == 3)
                         {
-                            if((adr_list.size() == 3 && count == 3) || (adr_list.size() == 2 && count))
+                            if((adr_list.size() == 3 && count == 3) || (adr_list.size() == 2 && count == 2))
                             {
                                 candidate_listB = adr_list;
+                                for(size_t val : adr_list)
+                                {
+                                    if(high_index < val % 9)
+                                    {
+                                        high_index = val % 9;
+                                    }
+                                    if(low_index > val % 9)
+                                    {
+                                        low_index = val % 9;
+                                    }
+                                }
                             }
                         }
                         else
@@ -88,12 +110,33 @@ private:
                             if((adr_list.size() == 3 && count == 2) || (adr_list.size() == 2 && count))
                             {
                                 candidate_listB = adr_list;
+                                for(size_t val : adr_list)
+                                {
+                                    if(high_index < val % 9)
+                                    {
+                                        high_index = val % 9;
+                                    }
+                                    if(low_index > val % 9)
+                                    {
+                                        low_index = val % 9;
+                                    }
+                                }
                             }
                         }
                     }
                     else if(candidate_listC.size() == 0)
                     {
                         count = 0;
+                        for(size_t x : candidate_listA)
+                        {
+                            for(size_t y : adr_list)
+                            {
+                                if(x + ((adr_list[0] / 9) - (candidate_listA[0] / 9)) * 9 == y)
+                                {
+                                    count++;
+                                }
+                            }
+                        }
                         for(size_t x : candidate_listB)
                         {
                             for(size_t y : adr_list)
@@ -104,21 +147,13 @@ private:
                                 }
                             }
                         }
-                        if(candidate_listB.size() == 3)
+                        if(adr_list.size() == 3 && count >= 4)
                         {
-                            if((adr_list.size() == 3 && count == 3) || (adr_list.size() == 2 && count))
-                            {
-                                candidate_listC = adr_list;
-                                break;
-                            }
+                            candidate_listC = adr_list;
                         }
-                        else
+                        else if(adr_list.size() == 2 && count >= 3)
                         {
-                            if((adr_list.size() == 3 && count == 2) || (adr_list.size() == 2 && count))
-                            {
-                                candidate_listC = adr_list;
-                                break;
-                            }
+                            candidate_listC = adr_list;
                         }
                     }
                 }
@@ -411,6 +446,7 @@ private:
                 c = 0;
             }
             pairs.clear();
+            triples.clear();
             colum = (i / 3) * 3;
             row = (i * 3) % 9;
             for(size_t i = 0; i < 9; i++)// count use numb.
@@ -681,6 +717,7 @@ private:
                         {
                             p++;
                             tripC = possible[index][p % 2];
+                            triples_index[1] = index;
                         }
                         else
                         {
@@ -725,6 +762,32 @@ private:
                                     possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripC), possible[index].end());
                                 }
                             }
+                            if(triples_index[0] + 1 == triples_index[1] && triples_index[0] + 2 == triples_index[2])
+                            {
+                                for(size_t i = 0; i < 9; i++)
+                                {
+                                    index = ((triples_index[0] / 9) * 9) + i;
+                                    if(index != triples_index[0] && index != triples_index[1] && index != triples_index[2])
+                                    {
+                                        possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripA), possible[index].end());
+                                        possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripB), possible[index].end());
+                                        possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripC), possible[index].end());
+                                    }
+                                }
+                            }
+                            if(triples_index[0] + 9 == triples_index[1] && triples_index[0] + 18 == triples_index[2])
+                            {
+                                for(size_t i = 0; i < 9; i++)
+                                {
+                                    index = (triples_index[0] % 9)  + (i * 9);
+                                    if(index != triples_index[0] && index != triples_index[1] && index != triples_index[2])
+                                    {
+                                        possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripA), possible[index].end());
+                                        possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripB), possible[index].end());
+                                        possible[index].erase(remove(possible[index].begin(), possible[index].end(), tripC), possible[index].end());
+                                    }
+                                }
+                            }
                             cout << "Applies obvious triples.\n";
                             return;
                         }
@@ -742,6 +805,72 @@ private:
         size_t subindex;
         size_t lastindex;
         char pairA, pairB;
+        for(row = 0; row < 9; row++)
+        {
+            for(size_t i = 0; i < 9; i++)
+            {
+                index = (row * 9) + i;
+                if(possible[index].size() == 2)
+                {
+                    for(size_t i = 0; i < 9; i++)
+                    {
+                        subindex = (row * 9) + i;
+                        if(subindex != index && possible[subindex].size() == 2)
+                        {
+                            if((possible[subindex].find(possible[index][0]) != string::npos) && (possible[subindex].find(possible[index][1]) != string::npos))
+                            {
+                                pairA = possible[subindex][0];
+                                pairB = possible[subindex][1];
+                                for(size_t i = 0; i < 9; i++)
+                                {
+                                    lastindex = (row * 9) + i;
+                                    if(lastindex != index && lastindex != subindex)
+                                    {
+                                        possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairA), possible[lastindex].end());
+                                        possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairB), possible[lastindex].end());
+                                    }
+                                }
+                                cout << "Applies obvious paris row-line.\n";
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for(colum = 0; colum < 9; colum++)
+        {
+            for(size_t i = 0; i < 9; i++)
+            {
+                index = (i * 9) + colum;
+                if(possible[index].size() == 2)
+                {
+                    for(size_t i = 0; i < 9; i++)
+                    {
+                        subindex = (i * 9) + colum;
+                        if(subindex != index && possible[subindex].size() == 2)
+                        {
+                            if((possible[subindex].find(possible[index][0]) != string::npos) && (possible[subindex].find(possible[index][1]) != string::npos))
+                            {
+                                pairA = possible[subindex][0];
+                                pairB = possible[subindex][1];
+                                for(size_t i = 0; i < 9; i++)
+                                {
+                                    lastindex = (i * 9) + colum;
+                                    if(lastindex != index && lastindex != subindex)
+                                    {
+                                        possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairA), possible[lastindex].end());
+                                        possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairB), possible[lastindex].end());
+                                    }
+                                }
+                                cout << "Applies obvious paris colum-line.\n";
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         for(size_t i = 0; i < 9; i++)
         {
             colum = (i / 3) * 3;
@@ -760,7 +889,7 @@ private:
                         subindex = (cube_colum * 9) + cube_row;
                         if(subindex != index && possible[subindex].size() == 2)
                         {
-                            if(possible[subindex] == possible[index])
+                            if((possible[subindex].find(possible[index][0]) != string::npos) && (possible[subindex].find(possible[index][1]) != string::npos))
                             {
                                 pairA = possible[subindex][0];
                                 pairB = possible[subindex][1];
@@ -775,8 +904,8 @@ private:
                                         possible[lastindex].erase(remove(possible[lastindex].begin(), possible[lastindex].end(), pairB), possible[lastindex].end());
                                     }
                                 }
-                                cout << "Applies obvious paris.\n";
-                                return;
+                                cout << "Applies obvious paris cube.\n";
+                                break;
                             }
                         }
                     }
@@ -903,12 +1032,13 @@ private:
 public:
     void solveSudoku(vector<vector<char>> &board)
     {
-        size_t row;
-        size_t colum;
+        size_t end_loop = 0;
+        size_t test = 0;
         char c;
-        for(colum = 0; colum < 9; colum++)
+
+        for(size_t colum = 0; colum < 9; colum++)
         {
-            for(row = 0; row < 9; row++)
+            for(size_t row = 0; row < 9; row++)
             {
                 c = board[colum][row];
                 if(c != '.')
@@ -917,18 +1047,49 @@ public:
                 }
             }
         }
-        do
+
+        while(1)
         {
-            releated_extract_number();
-            find_obvious_pairs();
-            find_obvious_triples();
-            find_hidded_pairs();
-            find_pointing_pairs();
-            find_pointing_triples();
-            find_hidded_triples();
-            find_swordfish();
+            if(find_number(board))
+            {
+                test = 0;
+            }
+            switch(test++)
+            {
+                case 0:
+                    releated_extract_number();
+                    break;
+                case 1:
+                    find_obvious_pairs();
+                    break;
+                case 2:
+                    find_obvious_triples();
+                    break;
+                case 3:
+                    find_pointing_pairs();
+                    break;
+                case 4:
+                    find_pointing_triples();
+                    break;
+                case 5:
+                    find_hidded_pairs();
+                    break;
+                case 6:
+                    find_hidded_triples();
+                    break;
+                case 7:
+                    find_swordfish();
+                    break;
+                default:
+                    test = 0;
+                    if(end_loop > 1)
+                    {
+                        return;
+                    }
+                    end_loop++;
+                    break;
+            }
         }
-        while(find_number(board));
     }
 };
 //////////////////////////////
@@ -938,33 +1099,56 @@ int main()
 {
     Solution x;
 
-    vector<vector<char>> board{{'.', '.', '9', '7', '4', '8', '.', '.', '.'}, {'7', '.', '.', '.', '.', '.', '.', '.', '.'}, {'.', '2', '.', '1', '.', '9', '.', '.', '.'}, {'.', '.', '7', '.', '.', '.', '2', '4', '.'}, {'.', '6', '4', '.', '1', '.', '5', '9', '.'}, {'.', '9', '8', '.', '.', '.', '3', '.', '.'}, {'.', '.', '.', '8', '.', '3', '.', '2', '.'}, {'.', '.', '.', '.', '.', '.', '.', '.', '6'}, {'.', '.', '.', '2', '7', '5', '9', '.', '.'}};
-    //vector<vector<char>> board{{'5', '1', '9', '7', '4', '8', '6', '3', '2'}, {'7', '8', '3', '6', '5', '2', '4', '1', '9'}, {'4', '2', '6', '1', '3', '9', '8', '7', '5'}, {'3', '5', '7', '9', '8', '6', '2', '4', '1'}, {'2', '6', '4', '3', '1', '7', '5', '9', '8'}, {'1', '9', '8', '5', '2', '4', '3', '6', '7'}, {'9', '7', '5', '8', '6', '3', '1', '2', '4'}, {'8', '3', '2', '4', '9', '1', '7', '5', '6'}, {'6', '4', '1', '2', '7', '5', '9', '8', '3'}};
-    vector<vector<char>> solve{{'5', '1', '9', '7', '4', '8', '6', '3', '2'}, {'7', '8', '3', '6', '5', '2', '4', '1', '9'}, {'4', '2', '6', '1', '3', '9', '8', '7', '5'}, {'3', '5', '7', '9', '8', '6', '2', '4', '1'}, {'2', '6', '4', '3', '1', '7', '5', '9', '8'}, {'1', '9', '8', '5', '2', '4', '3', '6', '7'}, {'9', '7', '5', '8', '6', '3', '1', '2', '4'}, {'8', '3', '2', '4', '9', '1', '7', '5', '6'}, {'6', '4', '1', '2', '7', '5', '9', '8', '3'}};
+    //vector<vector<char>> board{{'.', '.', '9', '7', '4', '8', '.', '.', '.'}, {'7', '.', '.', '.', '.', '.', '.', '.', '.'}, {'.', '2', '.', '1', '.', '9', '.', '.', '.'}, {'.', '.', '7', '.', '.', '.', '2', '4', '.'}, {'.', '6', '4', '.', '1', '.', '5', '9', '.'}, {'.', '9', '8', '.', '.', '.', '3', '.', '.'}, {'.', '.', '.', '8', '.', '3', '.', '2', '.'}, {'.', '.', '.', '.', '.', '.', '.', '.', '6'}, {'.', '.', '.', '2', '7', '5', '9', '.', '.'}};
+    //vector<vector<char>> solve{{'5', '1', '9', '7', '4', '8', '6', '3', '2'}, {'7', '8', '3', '6', '5', '2', '4', '1', '9'}, {'4', '2', '6', '1', '3', '9', '8', '7', '5'}, {'3', '5', '7', '9', '8', '6', '2', '4', '1'}, {'2', '6', '4', '3', '1', '7', '5', '9', '8'}, {'1', '9', '8', '5', '2', '4', '3', '6', '7'}, {'9', '7', '5', '8', '6', '3', '1', '2', '4'}, {'8', '3', '2', '4', '9', '1', '7', '5', '6'}, {'6', '4', '1', '2', '7', '5', '9', '8', '3'}};
+
+    //vector<vector<char>> board {{'.', '.', '.', '2', '.', '.', '.', '6', '3'}, {'3', '.', '.', '.', '.', '5', '4', '.', '1'}, {'.', '.', '1', '.', '.', '3', '9', '8', '.'}, {'.', '.', '.', '.', '.', '.', '.', '9', '.'}, {'.', '.', '.', '5', '3', '8', '.', '.', '.'}, {'.', '3', '.', '.', '.', '.', '.', '.', '.'}, {'.', '2', '6', '3', '.', '.', '5', '.', '.'}, {'5', '.', '3', '7', '.', '.', '.', '.', '8'}, {'4', '7', '.', '.', '.', '1', '.', '.', '.'}};
+    //vector<vector<char>> solve{{'8', '5', '4', '2', '1', '9', '7', '6', '3'}, {'3', '9', '7', '8', '6', '5', '4', '2', '1'}, {'2', '6', '1', '4', '7', '3', '9', '8', '5'}, {'7', '8', '5', '1', '2', '6', '3', '9', '4'}, {'6', '4', '9', '5', '3', '8', '1', '7', '2'}, {'1', '3', '2', '9', '4', '7', '8', '5', '6'}, {'9', '2', '6', '3', '8', '4', '5', '1', '7'}, {'5', '1', '3', '7', '9', '2', '6', '4', '8'}, {'4', '7', '8', '6', '5', '1', '2', '3', '9'}};
+
+    vector<vector<char>> board{{'1', '.', '.', '.', '7', '.', '.', '3', '.'}, {'8', '3', '.', '6', '.', '.', '.', '.', '.'}, {'.', '.', '2', '9', '.', '.', '6', '.', '8'}, {'6', '.', '.', '.', '.', '4', '9', '.', '7'}, {'.', '9', '.', '.', '.', '.', '.', '5', '.'}, {'3', '.', '7', '5', '.', '.', '.', '.', '4'}, {'2', '.', '3', '.', '.', '9', '1', '.', '.'}, {'.', '.', '.', '.', '.', '2', '.', '4', '3'}, {'.', '4', '.', '.', '8', '.', '.', '.', '9'}};
+    vector<vector<char>> solve{{'1', '6', '9', '8', '7', '5', '4', '3', '2'}, {'8', '3', '4', '6', '2', '1', '7', '9', '5'}, {'5', '7', '2', '9', '4', '3', '6', '1', '8'}, {'6', '2', '5', '1', '3', '4', '9', '8', '7'}, {'4', '9', '8', '2', '6', '7', '3', '5', '1'}, {'3', '1', '7', '5', '9', '8', '2', '6', '4'}, {'2', '8', '3', '4', '5', '9', '1', '7', '6'}, {'9', '5', '6', '7', '1', '2', '8', '4', '3'}, {'7', '4', '1', '3', '8', '6', '5', '2', '9'}};
 
     cout << "----------begin--------\n";
     x.solveSudoku(board);
     int left = 0;
+    int fail = 0;
+    size_t cube_row;
+    size_t cube_colum;
     for(int i = 0; i < board.size(); ++i)
     {
+        if(i % 3 == 0)
+        {
+            cout << '\n';
+        }
         for(int j = 0; j < board[i].size(); ++j)
         {
+            if(j % 3 == 0)
+            {
+                cout << "  ";
+            }
             if(board[i][j] != '.' && solve[i][j] != board[i][j])
             {
-                cout << "[x" << board[i][j] << ']';
-            }
-            else
-            {
-                cout << '[' << board[i][j] << ']';
+                cout << "[ x" << board[i][j] << "  ]";
+                fail++;
             }
             if(board[i][j] == '.')
             {
                 left++;
+                cout << "(" << x.possible[(i * 9) + j];
+                for(size_t k = 5; k > x.possible[(i * 9) + j].size(); --k)
+                {
+                    cout << " ";
+                }
+                cout << ")";
+            }
+            else
+            {
+                cout << "[  " << board[i][j] << "  ]";
             }
         }
         cout << '\n';
     }
-    cout << "Left:" << left << '\n';
+    cout << "\nLeft:" << left << " Fail:" << fail << '\n';
 
     cout << "-----------end---------";
 }
