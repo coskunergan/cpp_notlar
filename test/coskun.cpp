@@ -3,6 +3,10 @@
 #include <vector>
 #include <cstring>
 #include <algorithm>
+#include <iostream>  // cout
+#include <iterator>  // back_inserter
+#include <string>
+
 
 using namespace std;
 
@@ -12,25 +16,63 @@ using namespace std;
 class Solution
 {
 public:
-    int lengthOfLongestSubstring(string s)
+    string convert(string s, int numRows)
     {
-        int max = 0;
-        vector<char> vstr{};
-        for(char n : s)
+        vector<char> vstr(s.size());
+        vector<vector<char>> matris(numRows, vector<char> (s.size() / numRows));        
+
+        copy(s.rbegin(), s.rend(), vstr.begin());
+
+        while(vstr.size() > 0)
         {
-            if(auto x = find(vstr.begin(), vstr.end(), n); x != vstr.end())
+            for(int i = 0; i < numRows; i++)
             {
-                copy(x + 1, vstr.end(), vstr.begin());
-                vstr.resize(vstr.end() - x - 1);
+                if(vstr.size())
+                {
+                    matris[i].push_back(+[&]()
+                    {
+                        char x = vstr.back();
+                        vstr.pop_back();
+                        return x;
+                    }
+                    ());
+                }
             }
-            vstr.push_back(n);
-            if(max < vstr.size())
+            int index = numRows;
+            int shift = numRows - 2;
+            while(shift > 0)
             {
-                max = vstr.size();
+                index--;
+                if(shift == index && vstr.size())
+                {
+                    matris[index].push_back(+[&]()
+                    {
+                        char x = vstr.back();
+                        vstr.pop_back();
+                        return x;
+                    }
+                    ());
+                }
+                else
+                {
+                    matris[index].push_back(' ');
+                }
+                if(index == 0)
+                {
+                    index = numRows - 1;
+                    shift--;
+                }
             }
         }
-
-        return max;
+        string res{};
+        for(int i = 0; i < numRows; i++)
+        {
+            copy_if(matris[i].begin(), matris[i].end(), back_inserter(res), [](char c)
+            {
+                return (c != ' ' && c != '\0');
+            });
+        }
+        return res;
     }
 };
 //////////////////////////////
@@ -41,10 +83,8 @@ int main()
     Solution x;
 
     cout << "----------begin--------\n";
-    //int res = x.lengthOfLongestSubstring("abcabcbb");
-    //int res = x.lengthOfLongestSubstring("pwwkew");
-    //int res = x.lengthOfLongestSubstring("bbbbb");
-    int res = x.lengthOfLongestSubstring("dvdf");
+
+    string res = x.convert("PAYPALISHIRING", 3);// PAHNAPLSIIGYIR
 
     cout << "Result:" << res << '\n';
 
